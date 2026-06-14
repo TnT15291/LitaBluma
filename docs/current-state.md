@@ -25,6 +25,7 @@ Last updated: 2026-06-14
 - **Onboarding (first-run flow):** `src/routes/Onboarding.tsx` — 3 steps in calm parent-scope: privacy consent (before any child profile) → child profile (name, birth date, system avatar, live age-band) → starter checklist (band templates + custom add + suggested rewards). Verified via headless-Chrome screenshots.
 - **UI:** `src/components/shared/` (Button with size/variant + full states, Panel + GardenCard, ProgressBar), `src/features/garden/` (immersive `GardenIllustration`, GardenScene, stage display), `src/features/parental-gate/` (PIN keypad gate), `src/routes/` (Onboarding, ChildHome, ParentDashboard), `src/app/App.tsx` (router with onboarding guard: not-onboarded → `/onboarding`; else child `/`, gated parent `/parent`).
 - **Parent self-regulation pillar (started):** logging `not_yet` shows a rotating, dismissible parent micro-pause line — never scored, never shown to the child (Phase 1 item).
+- **Reward management:** parent mode can add custom rewards (title, type, points; objects de-emphasized) and delete any reward including the onboarding defaults. Store actions `addReward` / `removeReward`; deletion preserves ledger/redemption history (ledger stores its own reason text).
 - **Tests:** 35 passing — ledger, age-band, garden, recognition, templates + parent-pause selection.
 
 ## How To Run
