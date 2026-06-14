@@ -1,0 +1,267 @@
+/* Self-hosted variable fonts — no external requests (privacy-first for a kids app). */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/nunito';
+@import '@fontsource-variable/fredoka';
+@import 'tailwindcss';
+
+/*
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │ LitaBluma design system — two worlds, one home.                            │
+  │                                                                            │
+  │ • Child mode (.child-scope): a DRENCHED, immersive garden. Color is the    │
+  │   surface. Warm, deep, alive. Display type, big touch targets, low text.   │
+  │ • Parent mode (.parent-scope): RESTRAINED, calm, operational. A cool,      │
+  │   near-white workspace with one grounded green accent. The tool disappears │
+  │   into the task.                                                           │
+  │                                                                            │
+  │ Rules baked in:                                                            │
+  │ • --danger / --warning / --info are for REAL system state only, never for  │
+  │   behavior. `not_yet` is neutral and invisible to the child.               │
+  │ • All tokens OKLCH. Body text meets WCAG AA on its surface.                │
+  └──────────────────────────────────────────────────────────────────────────┘
+*/
+
+@theme {
+  /* ── Garden palette (child) ─────────────────────────────────────────── */
+  --color-leaf-50: oklch(0.97 0.02 150);
+  --color-leaf-100: oklch(0.93 0.05 150);
+  --color-leaf-200: oklch(0.86 0.09 151);
+  --color-leaf-300: oklch(0.76 0.13 152);
+  --color-leaf-400: oklch(0.66 0.15 153);
+  --color-leaf-500: oklch(0.55 0.14 154);
+  --color-leaf-600: oklch(0.47 0.12 155);
+  --color-leaf-700: oklch(0.39 0.1 156);
+  --color-leaf-800: oklch(0.32 0.08 157);
+  --color-leaf-900: oklch(0.26 0.06 158);
+
+  /* Sun — the warm recognition light. Never a warning. */
+  --color-sun-100: oklch(0.96 0.05 88);
+  --color-sun-200: oklch(0.92 0.1 86);
+  --color-sun-300: oklch(0.86 0.14 84);
+  --color-sun-400: oklch(0.81 0.16 80);
+  --color-sun-500: oklch(0.74 0.16 72);
+
+  /* Sky — backdrop wash for the garden. */
+  --color-sky-100: oklch(0.97 0.025 230);
+  --color-sky-200: oklch(0.92 0.05 232);
+  --color-sky-300: oklch(0.85 0.07 235);
+
+  /* Soil / bark — grounding base. */
+  --color-soil-100: oklch(0.92 0.025 72);
+  --color-soil-200: oklch(0.82 0.045 66);
+  --color-soil-300: oklch(0.66 0.06 60);
+  --color-soil-400: oklch(0.5 0.06 55);
+  --color-soil-500: oklch(0.4 0.05 52);
+
+  /* Bloom — soft flower accent (a gentle rose, NOT an error color). */
+  --color-bloom-200: oklch(0.9 0.06 2);
+  --color-bloom-300: oklch(0.8 0.12 1);
+  --color-bloom-400: oklch(0.7 0.16 358);
+  --color-bloom-500: oklch(0.62 0.18 356);
+
+  /* ── Parent palette (operational) ──────────────────────────────────── */
+  /* Cool, faintly green-tinted neutrals — deliberately NOT warm cream. */
+  --color-ink-50: oklch(0.985 0.004 160);
+  --color-ink-100: oklch(0.965 0.005 165);
+  --color-ink-200: oklch(0.92 0.006 170);
+  --color-ink-300: oklch(0.83 0.008 175);
+  --color-ink-400: oklch(0.66 0.01 185);
+  --color-ink-500: oklch(0.54 0.012 195);
+  --color-ink-600: oklch(0.45 0.013 200);
+  --color-ink-700: oklch(0.37 0.013 205);
+  --color-ink-800: oklch(0.28 0.013 208);
+  --color-ink-900: oklch(0.21 0.012 210);
+
+  /* Calm accent — a grounded forest green; shares brand DNA, quieter. */
+  --color-calm-100: oklch(0.94 0.03 165);
+  --color-calm-200: oklch(0.88 0.05 164);
+  --color-calm-300: oklch(0.78 0.08 162);
+  --color-calm-500: oklch(0.52 0.1 160);
+  --color-calm-600: oklch(0.44 0.1 160);
+  --color-calm-700: oklch(0.37 0.09 160);
+
+  /* ── System-only signals (never for behavior) ──────────────────────── */
+  --color-danger: oklch(0.58 0.2 25);
+  --color-warning: oklch(0.8 0.15 75);
+  --color-info: oklch(0.62 0.12 240);
+  --color-success: var(--color-leaf-500);
+
+  /* ── Type ──────────────────────────────────────────────────────────── */
+  --font-ui: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Fredoka Variable', 'Inter Variable', ui-rounded, system-ui, sans-serif;
+  --font-rounded: 'Nunito Variable', 'Inter Variable', ui-rounded, system-ui, sans-serif;
+
+  /* ── Shape ─────────────────────────────────────────────────────────── */
+  --radius-card: 1.5rem;
+  --radius-panel: 1rem;
+  --radius-pill: 999px;
+
+  /* ── Elevation ─────────────────────────────────────────────────────── */
+  --shadow-panel: 0 1px 2px oklch(0.4 0.02 200 / 0.06), 0 4px 16px oklch(0.4 0.02 200 / 0.06);
+  --shadow-float:
+    0 2px 6px oklch(0.3 0.05 150 / 0.1), 0 12px 32px oklch(0.3 0.05 150 / 0.16);
+  --shadow-pop: 0 8px 24px oklch(0.3 0.05 150 / 0.22);
+
+  /* ── Motion ────────────────────────────────────────────────────────── */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Z-scale (semantic, never magic numbers) ───────────────────────── */
+  --z-base: 0;
+  --z-sticky: 1100;
+  --z-overlay: 1200;
+  --z-modal: 1300;
+  --z-toast: 1400;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-ui);
+    color: var(--color-ink-800);
+    background: var(--color-ink-50);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible focus everywhere — keyboard + switch-access friendly. */
+  :focus-visible {
+    outline: 3px solid var(--color-calm-500);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  /* Reduced motion is a first-class alternative, not an afterthought. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* ── Child world surface ───────────────────────────────────────────── */
+  .child-scope {
+    font-family: var(--font-rounded);
+    color: var(--color-leaf-900);
+    background:
+      radial-gradient(140% 90% at 78% 6%, var(--color-sun-100) 0%, transparent 42%),
+      linear-gradient(
+        180deg,
+        var(--color-sky-200) 0%,
+        var(--color-sky-100) 30%,
+        var(--color-leaf-50) 62%,
+        var(--color-soil-100) 100%
+      );
+    min-height: 100dvh;
+  }
+
+  .child-scope :is(h1, h2, h3) {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  /* Frosted card used sparingly inside the garden, so the scene reads through. */
+  .garden-card {
+    border-radius: var(--radius-card);
+    background: oklch(1 0 0 / 0.72);
+    box-shadow: var(--shadow-float);
+    backdrop-filter: blur(8px);
+    border: 1px solid oklch(1 0 0 / 0.6);
+  }
+
+  /* ── Parent workspace surface ──────────────────────────────────────── */
+  .parent-scope {
+    font-family: var(--font-ui);
+    color: var(--color-ink-800);
+    background: var(--color-ink-50);
+    min-height: 100dvh;
+  }
+
+  .parent-panel {
+    border-radius: var(--radius-panel);
+    background: oklch(1 0 0);
+    border: 1px solid var(--color-ink-200);
+    box-shadow: var(--shadow-panel);
+  }
+}
+
+/* ── Keyframes (garden life) ──────────────────────────────────────────── */
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-1.4deg);
+  }
+  50% {
+    transform: rotate(1.4deg);
+  }
+}
+
+@keyframes sun-rays {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(10px, -14px) rotate(8deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes grow-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}

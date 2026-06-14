@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir 'd:\\\\Projects\\\\LitaBluma\\\\docs' 'd:\\\\Projects\\\\LitaBluma\\\\.claude' 'd:\\\\Projects\\\\LitaBluma\\\\.claude\\\\skills' 'd:\\\\Projects\\\\LitaBluma\\\\.claude\\\\skills\\\\litabluma-builder')",
+      "Bash(gh auth *)",
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "PowerShell($git = Get-Command git -ErrorAction SilentlyContinue; \"git: \" + $\\(if\\($git\\){$git.Source}else{\"NOT FOUND\"}\\); $gh = Get-Command gh -ErrorAction SilentlyContinue; \"gh: \" + $\\(if\\($gh\\){$gh.Source}else{\"NOT FOUND\"}\\))",
+      "PowerShell(try { $r = Invoke-RestMethod -Uri \"https://api.github.com/repos/multica-ai/andrej-karpathy-skills\" -Headers @{ \"User-Agent\"=\"claude\" } -ErrorAction Stop; \"EXISTS: $\\($r.full_name\\) | private=$\\($r.private\\) | default=$\\($r.default_branch\\) | size=$\\($r.size\\)KB\" } catch { \"API result: $\\($_.Exception.Response.StatusCode.value__\\) $\\($_.Exception.Message\\)\" })",
+      "PowerShell(try { $r = Invoke-RestMethod -Uri \"https://api.github.com/repos/multica-ai/andrej-karpathy-skills/contents\" -Headers @{ \"User-Agent\"=\"claude\" } -ErrorAction Stop; $r | ForEach-Object { \"$\\($_.type\\)`t$\\($_.name\\)\" } } catch { \"ERR: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(\"cred.helper: \" + \\(git config --global credential.helper\\); \"user.name: \" + \\(git config --global user.name\\); \"user.email: \" + \\(git config --global user.email\\); $t = $env:GITHUB_TOKEN; \"GITHUB_TOKEN set: \" + [bool]$t; $t2 = $env:GH_TOKEN; \"GH_TOKEN set: \" + [bool]$t2)",
+      "Bash(npm -v)",
+      "Bash(npm install *)",
+      "Bash(npx vitest *)",
+      "Bash(npm run *)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"exit: $?\")",
+      "WebFetch(domain:github.com)",
+      "Bash(npx -y impeccable@latest --help)",
+      "Bash(npx -y impeccable@latest skills install --help)",
+      "Bash(yes)",
+      "Bash(npx -y impeccable@latest skills install)",
+      "Skill(impeccable)",
+      "Skill(impeccable:*)",
+      "Bash(node .claude/skills/impeccable/scripts/context.mjs)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
+      "Read(//tmp/**)",
+      "Bash(cd 'd:\\\\Projects\\\\LitaBluma' && mkdir -p .tmp-shots && cp /tmp/child.png /tmp/gate.png .tmp-shots/ && ls -la .tmp-shots)",
+      "Bash(node -e ' *)",
+      "Bash(rm -rf .tmp-shots dist/seedshot.html)",
+      "Bash(pkill -f \"vite preview\")",
+      "Bash(echo \"lint-exit: $?\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4173/onboarding)"
+    ],
+    "additionalDirectories": [
+      "d:\\Projects\\LitaBluma",
+      "\\tmp"
+    ]
+  }
+}

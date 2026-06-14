@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($work = \"d:\\\\Projects\\\\_akskills_work\"; if \\(Test-Path $work\\) { Remove-Item -Recurse -Force $work }; git clone https://github.com/multica-ai/andrej-karpathy-skills.git $work 2>&1 | Select-Object -Last 5; \"exit: $LASTEXITCODE\"; if \\(Test-Path $work\\) { \"--- cloned top-level ---\"; Get-ChildItem $work -Force | Select-Object Name })",
+      "PowerShell($src = \"d:\\\\Projects\\\\LitaBluma\"; $dst = \"d:\\\\Projects\\\\_akskills_work\\\\litabluma\"; New-Item -ItemType Directory -Force -Path $dst | Out-Null; Copy-Item \"$src\\\\CLAUDE.md\" $dst; Copy-Item \"$src\\\\docs\" $dst -Recurse; New-Item -ItemType Directory -Force -Path \"$dst\\\\.claude\\\\skills\\\\litabluma-builder\" | Out-Null; Copy-Item \"$src\\\\.claude\\\\skills\\\\litabluma-builder\\\\SKILL.md\" \"$dst\\\\.claude\\\\skills\\\\litabluma-builder\\\\\"; \"--- subfolder tree ---\"; Get-ChildItem $dst -Recurse -Force -File | ForEach-Object { $_.FullName.Replace\\($dst, \"litabluma\"\\) })"
+    ]
+  }
+}
