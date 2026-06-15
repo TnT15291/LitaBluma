@@ -1,12 +1,12 @@
 # LitaBluma Current State
 
-Last updated: 2026-06-14
+Last updated: 2026-06-15
 
 ## Repository State
 
-- The app is scaffolded and runnable (Phase 0 done; Phase 1 domain core done).
+- The app is scaffolded and runnable (Phase 0 done; Phase 1 domain core done; parent-confirmed proposals added on top).
 - Stack in place: Vite + React 19 + TypeScript + Tailwind v4 + React Router 7. Vitest for tests, ESLint + Prettier configured.
-- The directory is not currently initialized as a git repository.
+- The directory is a git repository (`main` branch).
 - Primary product spec: `docs/product-spec.md` (absorbed the former `PRD-LitaBluma-v2.1.md`, which has been removed along with the earlier draft `PRD-app-day-cu-xu.md` and the book-summary source file — book content now lives in `docs/eq-source-material.md`).
 
 ## What Exists In Code
@@ -21,12 +21,19 @@ Last updated: 2026-06-14
   - `points.ts` — ledger balance, outcome→points (not_yet = 0, no entry), redemption affordability.
   - `garden.ts` — deterministic growth from positive logs → stage + progress-to-next.
   - `recognition.ts` — rotating non-AI phrase selection (positive-only, no immediate repeat).
-- **Mock layer:** `src/lib/mock/` — `content.ts` (static app content: age-band behavior templates, recognition phrases, parent micro-pause prompts, system avatars, starter reward suggestions) + `store.tsx` React context persisting to localStorage. First run is empty (no consent, no child); `completeOnboarding` builds the whole state atomically. Enforces ledger rules centrally (logBehavior, redeemReward); `not_yet` returns a parent micro-pause line, positive outcomes return child recognition.
+  - `proposals.ts` — derives parent-confirmed proposals ("app suggests, parent decides"): habit tapering (`new`→`building`→`stable`, −1 seed per step), recognition-only (well-established habit → 0 points, still celebrated), recurring-`not_yet` (Flow 6: a stuck behavior → suggest easing/pausing, parent-only, never child-facing), and `band_review` (child-scoped, via `deriveBandReview`): when a band transition is near and the upcoming band has fresh suggested items, invite the parent to review — a `navigate` effect to `/parent/manage`, never a bulk add. Pure derivation only — it never mutates state; ids encode the trigger so a stronger signal can re-surface after a dismissal.
+  - `virtues.ts` — the 5-virtue character axis (tự lập / trách nhiệm / kiểm soát cảm xúc / đồng cảm / kiên trì): metadata (label+emoji) + `groupByVirtue`. A recognition *lens* over behaviors, never a graded level; no per-virtue scoring of the child.
+  - `weeklyReport.ts` — pure aggregator that turns the last 7 days of positive logs into a strength-based "Lá thư tuần này": good-moments + active-days counts, highlights grouped by virtue, top behaviors, and a rotating parent reflection + tip. Excludes `not_yet`; no score/ranking. The non-AI base path (AI dual analysis layers on later).
+- **Mock layer:** `src/lib/mock/` — `content.ts` (static app content: age-band behavior templates **tagged by virtue**, recognition phrases, parent micro-pause prompts, weekly reflection prompts + parent tips, system avatars, starter reward suggestions) + `store.tsx` React context persisting to localStorage. First run is empty (no consent, no child); `completeOnboarding` builds the whole state atomically. Enforces ledger rules centrally (logBehavior, redeemReward); `not_yet` returns a parent micro-pause line, positive outcomes return child recognition.
 - **Onboarding (first-run flow):** `src/routes/Onboarding.tsx` — 3 steps in calm parent-scope: privacy consent (before any child profile) → child profile (name, birth date, system avatar, live age-band) → starter checklist (band templates + custom add + suggested rewards). Verified via headless-Chrome screenshots.
 - **UI:** `src/components/shared/` (Button with size/variant + full states, Panel + GardenCard, ProgressBar), `src/features/garden/` (immersive `GardenIllustration`, GardenScene, stage display), `src/features/parental-gate/` (PIN keypad gate), `src/routes/` (Onboarding, ChildHome, ParentDashboard), `src/app/App.tsx` (router with onboarding guard: not-onboarded → `/onboarding`; else child `/`, gated parent `/parent`).
-- **Parent self-regulation pillar (started):** logging `not_yet` shows a rotating, dismissible parent micro-pause line — never scored, never shown to the child (Phase 1 item).
+- **Parent self-regulation pillar:** logging `not_yet` now opens a calm in-place panel ("Một nhịp cho bố mẹ") at that checklist item — a rotating, dismissible micro-pause line that persists until closed (no longer a 3.5s toast), clears when the same item is later logged positive. Never scored, never shown to the child. Positive outcomes still relay the child-facing recognition line to the parent as a brief toast. This is the smallest form of the second pillar; fuller version (more prompts/situational tips) is MVP+, weekly reflection letter post-MVP.
 - **Reward management:** parent mode can add custom rewards (title, type, points; objects de-emphasized) and delete any reward including the onboarding defaults. Store actions `addReward` / `removeReward`; deletion preserves ledger/redemption history (ledger stores its own reason text).
-- **Tests:** 35 passing — ledger, age-band, garden, recognition, templates + parent-pause selection.
+- **Character virtue axis (seed — MVP Core):** behaviors carry a `virtue` (5 virtues). Onboarding's template picker is grouped by virtue; the parent dashboard shows a virtue chip on each checklist item; the weekly report groups highlights by virtue. Seed only — a recognition lens, not a graded curriculum. Full system (age-laddered difficulty via proposals, garden-per-virtue, parent arc view) is post-MVP. See feature-ideas #9.
+- **Weekly report (non-AI — "Lá thư tuần này"):** gated route `/parent/report`, reachable from a dashboard link. Strength-based summary of the last 7 days (good moments, active days, highlights by virtue, top behaviors) + one rotating parent reflection + tip. No score/ranking; `not_yet` excluded; parent-only. The AI dual-analysis layer (child + parent) and monthly/yearly cadences are deferred (feature-ideas #10, needs the backend proxy).
+- **Checklist & profile management (Phase 3):** gated route `/parent/manage` (tap the child header on the dashboard). Edit the child profile (name, birth date with live band, avatar); add checklist items (custom or one-tap from age-band suggestions), edit title/points/virtue, archive/restore, and hard-delete only items with no logs (history is never erased). Store actions `addChecklistItem` / `updateChecklistItem` / `archiveChecklistItem` / `restoreChecklistItem` / `removeChecklistItem` / `updateChild` — a points edit changes only future logs, never the ledger.
+- **Parent-confirmed proposals (app suggests, parent decides):** the parent dashboard has an "Đề xuất từ ứng dụng" section ("Ứng dụng gợi ý — bạn là người quyết định") listing app-derived proposals. Each is accept (`applyProposal`) or decline (`dismissProposal`); nothing auto-applies. Store keeps `dismissedProposalIds` so handled cards never reappear. Applying a taper changes only the item's `pointsValue` + `habitStage` (future logs), never rewriting past ledger entries — points stay a ledger. `habitStage` now actually advances (first place it changes after creation). Recurring-`not_yet` proposals (and their archive action) live strictly in parent scope; child mode is untouched. **Band transition** is now an actionable `band_review` proposal whose "Xem gợi ý" link goes to `/parent/manage` (which shows the *upcoming* band's suggestions when a transition is near) — the parent adds each item by hand; nothing is auto-added. The dashboard birthday banner is now purely celebratory.
+- **Tests:** 81 passing — ledger, age-band, garden, recognition, templates, parent-pause, proposal derivation incl. band_review (16), virtue grouping + template validity (5), weekly-report aggregation (6), store management actions (6), ParentDashboard integration (8: proposal apply/decline, micro-pause, band_review surface/dismiss), ParentWeeklyReport render (2), ParentManage render (3).
 
 ## How To Run
 
@@ -99,14 +106,14 @@ Post-MVP:
 
 ## Immediate Next Steps
 
-Done: scaffold, TS/Tailwind/routing, domain types, mock-data flows, and tests for ledger/age-band/garden/recognition.
+Done: scaffold, TS/Tailwind/routing, domain types, mock-data flows, tests for ledger/age-band/garden/recognition, the parent-confirmed proposals system (incl. `band_review`), the in-place parent micro-pause, the character-virtue axis seed, the non-AI weekly report ("Lá thư tuần này"), and checklist/profile management (`/parent/manage`).
 
 Next:
-1. Flesh out Phase 3 UI quality: onboarding + consent flow, child-profile create/edit, empty/loading/error/success states, mobile + tablet-landscape polish for child mode.
-2. Add parent-confirmed proposals UI for habit tapering / band transition (app suggests, parent decides).
-3. Add Supabase schema and RLS scoped by family/caregiver; swap the mock store for a real repository behind the same interface.
-4. Seed the full age-band checklist templates and recognition-phrase library.
-5. Decide the open items below before persistence (birth_date granularity, garden formula, parental-gate production approach).
+1. Remaining Phase 3 UI quality: empty/loading/error/success states across surfaces, mobile + tablet-landscape polish for child mode. (Child-profile edit + checklist management now done.)
+2. Add Supabase schema and RLS scoped by family/caregiver; swap the mock store for a real repository behind the same interface.
+3. Seed the full age-band checklist templates and recognition-phrase library (virtue tags now exist as a seed; expand coverage).
+4. Decide the open items below before persistence (birth_date granularity, garden formula, parental-gate production approach).
+5. Phase 4 / MVP+: layer AI dual-analysis (child + parent) onto the weekly report via the backend proxy, and add monthly/yearly cadences + the full virtue ladder (feature-ideas #9, #10).
 
 ## Do Not Start Yet Unless Requested
 

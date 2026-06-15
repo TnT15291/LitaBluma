@@ -6,6 +6,7 @@ import { Button } from '@/components/shared/Button';
 import { cn } from '@/lib/cn';
 import { ageBandForBirthDate } from '@/lib/domain/ageBand';
 import { templatesForBand } from '@/lib/domain/templates';
+import { groupByVirtue } from '@/lib/domain/virtues';
 import {
   BEHAVIOR_TEMPLATES,
   STARTER_REWARD_SUGGESTIONS,
@@ -48,32 +49,37 @@ export function Onboarding() {
     [band],
   );
 
-  // Default the first five band templates on, once a band is known.
-  const templateState = (id: string, indexDefaultOn: boolean) =>
-    selectedTemplates[id] ?? indexDefaultOn;
+  // Default the first five band templates on. Keyed by id (not render order) so
+  // grouping the picker by virtue does not change which start selected.
+  const defaultOnIds = useMemo(
+    () => new Set(bandTemplates.slice(0, 5).map((t) => t.id)),
+    [bandTemplates],
+  );
+  const templateOn = (id: string) => selectedTemplates[id] ?? defaultOnIds.has(id);
 
   const today = new Date().toISOString().slice(0, 10);
   const stepIndex = STEPS.indexOf(step);
 
-  const chosenCount =
-    bandTemplates.filter((t, i) => templateState(t.id, i < 5)).length + customTitles.length;
+  const chosenCount = bandTemplates.filter((t) => templateOn(t.id)).length + customTitles.length;
 
   const finish = () => {
     if (!acceptedAt || !band) return;
     const checklist = [
       ...bandTemplates
-        .filter((t, i) => templateState(t.id, i < 5))
+        .filter((t) => templateOn(t.id))
         .map((t) => ({
           templateId: t.id,
           title: t.title,
           pointsValue: t.defaultPoints,
           category: t.category,
+          virtue: t.virtue,
         })),
       ...customTitles.map((title) => ({
         templateId: null,
         title,
         pointsValue: 1,
         category: 'custom',
+        virtue: null,
       })),
     ];
     const rewards = STARTER_REWARD_SUGGESTIONS.filter((_, i) => selectedRewards[i]);
@@ -174,20 +180,29 @@ export function Onboarding() {
               subtitle="Việc tốt sẽ cộng điểm; việc chưa làm chỉ được ghi nhận để theo dõi."
             />
 
-            <Panel className="flex flex-col gap-1 p-2">
-              {bandTemplates.map((t, i) => {
-                const on = templateState(t.id, i < 5);
-                return (
-                  <ToggleRow
-                    key={t.id}
-                    on={on}
-                    onToggle={() => setSelectedTemplates((s) => ({ ...s, [t.id]: !on }))}
-                    title={t.title}
-                    meta={`${t.defaultPoints} điểm`}
-                  />
-                );
-              })}
-            </Panel>
+            <div className="flex flex-col gap-3">
+              {groupByVirtue(bandTemplates).map((group) => (
+                <div key={group.meta.label}>
+                  <h3 className="mb-1.5 flex items-center gap-1.5 px-1 text-sm font-semibold text-ink-600">
+                    <span aria-hidden>{group.meta.emoji}</span> {group.meta.label}
+                  </h3>
+                  <Panel className="flex flex-col gap-1 p-2">
+                    {group.items.map((t) => {
+                      const on = templateOn(t.id);
+                      return (
+                        <ToggleRow
+                          key={t.id}
+                          on={on}
+                          onToggle={() => setSelectedTemplates((s) => ({ ...s, [t.id]: !on }))}
+                          title={t.title}
+                          meta={`${t.defaultPoints} điểm`}
+                        />
+                      );
+                    })}
+                  </Panel>
+                </div>
+              ))}
+            </div>
 
             {customTitles.length > 0 && (
               <Panel className="flex flex-col gap-1 p-2">

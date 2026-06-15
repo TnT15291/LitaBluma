@@ -3,6 +3,7 @@ import type {
   ParentPausePrompt,
   RecognitionPhrase,
   RewardType,
+  Virtue,
 } from '@/lib/domain/types';
 
 /**
@@ -35,29 +36,31 @@ export function avatarEmoji(key: string): string {
 
 export const BEHAVIOR_TEMPLATES: BehaviorTemplate[] = [
   // 4–5
-  t('t45_toys', '4-5', 'Tự cất đồ chơi sau khi chơi', 1, 'routine'),
-  t('t45_brush', '4-5', 'Tự đánh răng buổi tối', 2, 'routine'),
-  t('t45_thanks', '4-5', 'Nói "cảm ơn" và "xin lỗi"', 1, 'eq'),
-  t('t45_dress', '4-5', 'Tự mặc quần áo', 2, 'routine'),
-  t('t45_share', '4-5', 'Chia sẻ đồ chơi với bạn', 2, 'eq'),
-  t('t45_calm', '4-5', 'Hít thở khi tức giận', 3, 'eq'),
-  t('t45_table', '4-5', 'Giúp dọn bàn ăn', 2, 'family'),
+  t('t45_toys', '4-5', 'Tự cất đồ chơi sau khi chơi', 1, 'routine', 'responsibility'),
+  t('t45_brush', '4-5', 'Tự đánh răng buổi tối', 2, 'routine', 'independence'),
+  t('t45_thanks', '4-5', 'Nói "cảm ơn" và "xin lỗi"', 1, 'eq', 'empathy'),
+  t('t45_dress', '4-5', 'Tự mặc quần áo', 2, 'routine', 'independence'),
+  t('t45_share', '4-5', 'Chia sẻ đồ chơi với bạn', 2, 'eq', 'empathy'),
+  t('t45_calm', '4-5', 'Hít thở khi tức giận', 3, 'eq', 'emotional_regulation'),
+  t('t45_table', '4-5', 'Giúp dọn bàn ăn', 2, 'family', 'responsibility'),
+  t('t45_retry', '4-5', 'Thử lại khi chưa làm được', 2, 'eq', 'perseverance'),
   // 6–7
-  t('t67_bag', '6-7', 'Tự chuẩn bị cặp sách', 2, 'routine'),
-  t('t67_homework', '6-7', 'Làm bài tập về nhà', 2, 'routine'),
-  t('t67_brush', '6-7', 'Tự giác đánh răng sáng và tối', 2, 'routine'),
-  t('t67_listen', '6-7', 'Lắng nghe khi người khác nói', 2, 'eq'),
-  t('t67_feel', '6-7', 'Nói ra cảm xúc của mình', 3, 'eq'),
-  t('t67_chore', '6-7', 'Phụ giúp một việc nhà nhỏ', 2, 'family'),
-  t('t67_breathe', '6-7', 'Đếm hoặc hít thở khi bực bội', 3, 'eq'),
+  t('t67_bag', '6-7', 'Tự chuẩn bị cặp sách', 2, 'routine', 'independence'),
+  t('t67_homework', '6-7', 'Làm bài tập về nhà', 2, 'routine', 'responsibility'),
+  t('t67_brush', '6-7', 'Tự giác đánh răng sáng và tối', 2, 'routine', 'independence'),
+  t('t67_listen', '6-7', 'Lắng nghe khi người khác nói', 2, 'eq', 'empathy'),
+  t('t67_feel', '6-7', 'Nói ra cảm xúc của mình', 3, 'eq', 'emotional_regulation'),
+  t('t67_chore', '6-7', 'Phụ giúp một việc nhà nhỏ', 2, 'family', 'responsibility'),
+  t('t67_breathe', '6-7', 'Đếm hoặc hít thở khi bực bội', 3, 'eq', 'emotional_regulation'),
+  t('t67_persist', '6-7', 'Kiên trì làm xong việc đang làm', 2, 'routine', 'perseverance'),
   // 8–10
-  t('t810_time', '8-10', 'Tự quản lý thời gian làm bài', 3, 'routine'),
-  t('t810_room', '8-10', 'Dọn dẹp phòng riêng', 2, 'routine'),
-  t('t810_help', '8-10', 'Giúp đỡ em hoặc bạn', 2, 'eq'),
-  t('t810_resolve', '8-10', 'Bình tĩnh giải quyết bất đồng', 3, 'eq'),
-  t('t810_finish', '8-10', 'Hoàn thành việc được giao', 2, 'family'),
-  t('t810_greet', '8-10', 'Chủ động chào hỏi mọi người', 1, 'eq'),
-  t('t810_money', '8-10', 'Quản lý tiền tiêu vặt', 3, 'routine'),
+  t('t810_time', '8-10', 'Tự quản lý thời gian làm bài', 3, 'routine', 'independence'),
+  t('t810_room', '8-10', 'Dọn dẹp phòng riêng', 2, 'routine', 'responsibility'),
+  t('t810_help', '8-10', 'Giúp đỡ em hoặc bạn', 2, 'eq', 'empathy'),
+  t('t810_resolve', '8-10', 'Bình tĩnh giải quyết bất đồng', 3, 'eq', 'emotional_regulation'),
+  t('t810_finish', '8-10', 'Hoàn thành việc được giao', 2, 'family', 'perseverance'),
+  t('t810_greet', '8-10', 'Chủ động chào hỏi mọi người', 1, 'eq', 'empathy'),
+  t('t810_money', '8-10', 'Quản lý tiền tiêu vặt', 3, 'routine', 'responsibility'),
 ];
 
 export interface RewardSuggestion {
@@ -85,6 +88,27 @@ export const PARENT_PAUSE_PROMPTS: ParentPausePrompt[] = [
   { id: 'pp6', text: 'Đôi khi đổi thời điểm trong ngày sẽ giúp con dễ làm hơn.' },
 ];
 
+/**
+ * Weekly report content (non-AI). The report's parent-side reflection and tip
+ * rotate from these static sets — the always-available fallback before any AI
+ * layer. Reflection = phản tư cho cha mẹ (no scoring); tip = gợi ý khả thi.
+ */
+export const WEEKLY_REFLECTION_PROMPTS: string[] = [
+  'Tuần này, lúc nào bạn thấy mình giữ được bình tĩnh khi đồng hành cùng con?',
+  'Có khoảnh khắc nào bạn phản ứng nhẹ nhàng hơn so với trước không?',
+  'Điều gì ở con tuần này khiến bạn thấy ấm lòng nhất?',
+  'Khi con "chưa làm được", bạn đã đón nhận điều đó thế nào?',
+  'Một điều nhỏ bạn muốn thử khác đi trong tuần tới là gì?',
+];
+
+export const WEEKLY_PARENT_TIPS: string[] = [
+  'Khi khen, hãy mô tả việc con làm ("con tự cất đồ chơi rồi") thay vì chỉ "giỏi quá" — con hiểu rõ điều gì đáng quý.',
+  'Một việc "chưa làm" lặp lại thường là việc đang hơi khó, không phải con lười — thử chia nhỏ hơn.',
+  'Công nhận cảm xúc trước khi nhắc việc: "Con đang buồn nhỉ" giúp con hợp tác hơn lời nhắc thẳng.',
+  'Cho con một lựa chọn nhỏ ("đánh răng trước hay thay đồ trước?") để con thấy mình được làm chủ.',
+  'Ghi nhận nỗ lực, không chỉ kết quả — "con đã cố gắng" nuôi sự kiên trì bền hơn lời khen kết quả.',
+];
+
 export const RECOGNITION_PHRASES: RecognitionPhrase[] = [
   rp('rp_done_1', null, null, 'completed', 'Con đã tự làm điều đó — bố mẹ thấy con lớn thật rồi!'),
   rp('rp_done_2', null, null, 'completed', 'Một hạt giống tốt vừa được gieo trong vườn của con.'),
@@ -102,8 +126,9 @@ function t(
   title: string,
   defaultPoints: number,
   category: string,
+  virtue: Virtue,
 ): BehaviorTemplate {
-  return { id, ageBand, title, defaultPoints, category };
+  return { id, ageBand, title, defaultPoints, category, virtue };
 }
 
 function rp(

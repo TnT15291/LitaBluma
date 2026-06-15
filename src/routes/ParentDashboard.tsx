@@ -3,14 +3,23 @@ import { Link } from 'react-router-dom';
 import { useStore } from '@/lib/mock/store';
 import { Panel } from '@/components/shared/Card';
 import { Button } from '@/components/shared/Button';
-import { ageBandForBirthDate, isApproachingBandTransition, isBirthday } from '@/lib/domain/ageBand';
+import { ageBandForBirthDate, isBirthday } from '@/lib/domain/ageBand';
 import { canRedeem } from '@/lib/domain/points';
 import { STAGE_DISPLAY } from '@/features/garden/stageDisplay';
+import { virtueMeta } from '@/lib/domain/virtues';
 import { avatarEmoji } from '@/lib/mock/content';
 import { cn } from '@/lib/cn';
 import type { BehaviorOutcome, RewardType } from '@/lib/domain/types';
+import type { Proposal, ProposalKind } from '@/lib/domain/proposals';
 
 const REWARD_TYPES: RewardType[] = ['choice', 'activity', 'privilege', 'object'];
+
+const PROPOSAL_ICON: Record<ProposalKind, string> = {
+  taper_points: '🌿',
+  recognition_only: '🌳',
+  recurring_not_yet: '🧩',
+  band_review: '🌼',
+};
 
 const OUTCOMES: { value: BehaviorOutcome; label: string; emoji: string; active: string }[] = [
   { value: 'completed', label: 'Hoàn thành', emoji: '✓', active: 'bg-leaf-500 text-white' },
@@ -20,11 +29,25 @@ const OUTCOMES: { value: BehaviorOutcome; label: string; emoji: string; active: 
 ];
 
 export function ParentDashboard() {
-  const { state, balance, garden, logBehavior, redeemReward, addReward, removeReward, reset } =
-    useStore();
+  const {
+    state,
+    balance,
+    garden,
+    proposals,
+    logBehavior,
+    redeemReward,
+    addReward,
+    removeReward,
+    applyProposal,
+    dismissProposal,
+    reset,
+  } = useStore();
   const { child } = state;
   const [toast, setToast] = useState<string | null>(null);
   const [busyItem, setBusyItem] = useState<string | null>(null);
+  // The parent self-regulation micro-pause: a calm line shown in place at the
+  // item just logged `not_yet`. Parent-only, dismissible, never scored.
+  const [pause, setPause] = useState<{ itemId: string; text: string } | null>(null);
   const [addingReward, setAddingReward] = useState(false);
   const [rwTitle, setRwTitle] = useState('');
   const [rwType, setRwType] = useState<RewardType>('choice');
@@ -32,7 +55,6 @@ export function ParentDashboard() {
   if (!child) return null; // routing guards ensure a child exists here
 
   const band = ageBandForBirthDate(child.birthDate);
-  const approaching = isApproachingBandTransition(child.birthDate);
   const birthday = isBirthday(child.birthDate);
   const stage = STAGE_DISPLAY[garden.stage];
 
@@ -55,9 +77,17 @@ export function ParentDashboard() {
     setBusyItem(itemId);
     const result = logBehavior(itemId, outcome);
     setBusyItem(null);
-    // Positive → child-facing recognition; not_yet → parent self-regulation pause.
-    if (result?.recognition) flash(result.recognition.text);
-    else if (result?.parentPause) flash(result.parentPause.text);
+    if (!result) return;
+    if (outcome === 'not_yet') {
+      // A calm in-place pause for the parent — it stays until dismissed, not a
+      // 3.5s flash, so there is actually a beat to breathe.
+      if (result.parentPause) setPause({ itemId, text: result.parentPause.text });
+    } else {
+      // A good moment clears any lingering pause on this item; the child-facing
+      // recognition line is relayed to the parent as a brief toast.
+      setPause((p) => (p?.itemId === itemId ? null : p));
+      if (result.recognition) flash(result.recognition.text);
+    }
   };
 
   const handleRedeem = (rewardId: string, title: string) => {
@@ -78,21 +108,36 @@ export function ParentDashboard() {
     if (confirm(`Xóa phần thưởng "${title}"?`)) removeReward(rewardId);
   };
 
+  const handleApplyProposal = (proposal: Proposal) => {
+    if (applyProposal(proposal)) {
+      flash(proposal.kind === 'recurring_not_yet' ? 'Đã tạm ẩn việc này' : 'Đã cập nhật theo đề xuất');
+    }
+  };
+
   return (
     <div className="parent-scope px-5 pb-16 pt-6">
       <div className="mx-auto flex max-w-2xl flex-col gap-5">
         <header className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <Link
+            to="/parent/manage"
+            aria-label="Quản lý hồ sơ và checklist"
+            className="-m-1 flex min-w-0 items-center gap-3 rounded-2xl p-1 transition-colors hover:bg-ink-100"
+          >
             <span className="grid size-11 place-items-center rounded-full bg-calm-100 text-xl" aria-hidden>
               {avatarEmoji(child.avatarKey)}
             </span>
-            <div>
-              <h1 className="text-lg font-semibold text-ink-900">{child.displayName}</h1>
-              <p className="text-sm text-ink-500">
+            <div className="min-w-0">
+              <h1 className="flex items-center gap-1.5 text-lg font-semibold text-ink-900">
+                {child.displayName}
+                <span aria-hidden className="text-sm text-ink-300">
+                  ✎
+                </span>
+              </h1>
+              <p className="truncate text-sm text-ink-500">
                 Dải tuổi {band} · {stage.emoji} {stage.label}
               </p>
             </div>
-          </div>
+          </Link>
           <Link
             to="/"
             className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-leaf-500 px-4 text-sm font-semibold text-white shadow-[var(--shadow-panel)] transition-colors hover:bg-leaf-600"
@@ -118,15 +163,23 @@ export function ParentDashboard() {
           </Panel>
         </div>
 
-        {(approaching || birthday) && (
+        <Link
+          to="/parent/report"
+          className="flex items-center justify-between gap-3 rounded-2xl bg-calm-100 px-4 py-3 text-sm font-medium text-calm-700 transition-colors hover:bg-calm-200"
+        >
+          <span className="inline-flex items-center gap-2">
+            <span aria-hidden>✉️</span> Lá thư tuần này
+          </span>
+          <span aria-hidden>→</span>
+        </Link>
+
+        {birthday && (
           <Panel className="flex items-start gap-3 border-calm-300 bg-calm-100">
             <span className="text-xl" aria-hidden>
-              {birthday ? '🎂' : '🌼'}
+              🎂
             </span>
             <p className="text-sm text-calm-700">
-              {birthday
-                ? `Hôm nay là sinh nhật ${child.displayName}! Một năm con đã lớn thật nhiều — bạn có muốn xem lại checklist không?`
-                : `${child.displayName} sắp chuyển dải tuổi. Bạn muốn cùng cập nhật checklist cho phù hợp chứ?`}
+              Hôm nay là sinh nhật {child.displayName}! Một năm con đã lớn thật nhiều — thật đáng tự hào.
             </p>
           </Panel>
         )}
@@ -143,9 +196,17 @@ export function ParentDashboard() {
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate font-medium text-ink-900">{item.title}</p>
-                        <p className="text-xs text-ink-400">
-                          {item.pointsValue} điểm · {labelStage(item.habitStage)}
-                          {loggedToday.has(item.id) && ' · đã ghi hôm nay'}
+                        <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-ink-400">
+                          {item.virtue && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-calm-100 px-2 py-0.5 font-medium text-calm-700">
+                              <span aria-hidden>{virtueMeta(item.virtue).emoji}</span>
+                              {virtueMeta(item.virtue).label}
+                            </span>
+                          )}
+                          <span>
+                            {item.pointsValue} điểm · {labelStage(item.habitStage)}
+                            {loggedToday.has(item.id) && ' · đã ghi hôm nay'}
+                          </span>
                         </p>
                       </div>
                     </div>
@@ -175,11 +236,81 @@ export function ParentDashboard() {
                         );
                       })}
                     </div>
+
+                    {pause?.itemId === item.id && (
+                      <div
+                        role="status"
+                        className="mt-3 flex items-start gap-3 rounded-2xl bg-calm-100 px-4 py-3"
+                        style={{ animation: 'rise-in 0.3s var(--ease-out-quart) both' }}
+                      >
+                        <span className="mt-0.5 text-lg" aria-hidden>
+                          🌬️
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-calm-600">
+                            Một nhịp cho bố mẹ
+                          </p>
+                          <p className="mt-1 text-sm leading-relaxed text-ink-700">{pause.text}</p>
+                        </div>
+                        <button
+                          onClick={() => setPause(null)}
+                          aria-label="Đóng lời nhắc"
+                          className="grid size-7 shrink-0 place-items-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700"
+                        >
+                          <span aria-hidden>✕</span>
+                        </button>
+                      </div>
+                    )}
                   </Panel>
                 );
               })}
           </div>
         </section>
+
+        {proposals.length > 0 && (
+          <section>
+            <div className="mb-2 px-1">
+              <h2 className="text-sm font-semibold text-ink-600">Đề xuất từ ứng dụng</h2>
+              <p className="text-xs text-ink-400">Ứng dụng gợi ý — bạn là người quyết định.</p>
+            </div>
+            <div className="flex flex-col gap-2.5">
+              {proposals.map((p) => (
+                <Panel key={p.id} className="flex flex-col gap-3 border-calm-200 bg-calm-100">
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 text-xl" aria-hidden>
+                      {PROPOSAL_ICON[p.kind]}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-medium text-ink-900">{p.title}</p>
+                      <p className="mt-0.5 text-sm leading-relaxed text-ink-600">{p.rationale}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <Button variant="ghost" onClick={() => dismissProposal(p.id)}>
+                      {p.declineLabel}
+                    </Button>
+                    {p.effect.type === 'navigate' ? (
+                      <Link
+                        to={p.effect.to}
+                        onClick={() => dismissProposal(p.id)}
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-calm-500 px-5 py-2.5 text-sm font-medium text-white shadow-[var(--shadow-panel)] transition-colors hover:bg-calm-600"
+                      >
+                        {p.confirmLabel}
+                      </Link>
+                    ) : (
+                      <Button
+                        variant={p.kind === 'recurring_not_yet' ? 'soft' : 'primary'}
+                        onClick={() => handleApplyProposal(p)}
+                      >
+                        {p.confirmLabel}
+                      </Button>
+                    )}
+                  </div>
+                </Panel>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section>
           <div className="mb-2 flex items-center justify-between px-1">

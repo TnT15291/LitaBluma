@@ -113,6 +113,55 @@ App hiện chỉ ghi nhận con → vô tình ngụ ý "con là người cần s
     lá thư phản tư post-MVP. Vẫn giữ kỷ luật MVP — chỉ phần tối giản, không-AI, không chấm điểm mới vào Core.
   - Hệ quả: đã ghi vào [product-spec.md](product-spec.md) §4; còn cần cập nhật messaging/onboarding để phản ánh 2 trụ cột.
 
+## 9. Trục đức tính xuyên suốt (seed nội dung được phép ở MVP Core; hệ đầy đủ post-MVP)
+
+5 đức tính làm **trục** tổ chức hành vi, theo con từ nhỏ tới lớn với task khó dần theo nhóm tuổi:
+**tự lập · trách nhiệm · kiểm soát cảm xúc · đồng cảm · kiên trì.**
+
+- **Khung đúng:** đây là *trục phân loại* hành vi để **ghi nhận**, KHÔNG phải giáo trình có cấp độ phải vượt qua.
+  Ghi nhận hành vi con *đã* làm, không phải bài con *phải* đạt. (Tránh hiểu thành skill-tree/level.)
+- **Cấu trúc dữ liệu (gần như sẵn):** thêm `virtue` cho `behavior_templates` (đã có `category`, `age_band`).
+  "Khó tăng dần theo tuổi" = dùng `age_band` sẵn có; **nâng độ khó = một proposal** (app gợi ý, cha mẹ xác nhận —
+  tái dùng hệ proposals đã build ở `src/lib/domain/proposals.ts`), KHÔNG tự leo thang theo tuổi.
+- **Trẻ thấy:** sự đa dạng trong **vườn** — mỗi đức tính là một loại cây / khu vực, lớn lên khi con thực hành.
+  KHÔNG level, KHÔNG số, KHÔNG bảng xếp hạng đức tính.
+- **Cha mẹ thấy:** checklist nhóm theo đức tính + gợi ý hành vi theo tuổi (cha mẹ bật/tắt); "vòng cung" dài hạn
+  thể hiện qua *tăng trưởng*, không phải điểm.
+- **Guardrail (rất quan trọng):** KHÔNG chấm điểm con theo từng đức tính (→ vi phạm no-surveillance / no-label).
+  `not_yet` vẫn trung tính, không ngụ ý "con thiếu đức tính X". Không chẩn đoán. Nâng độ khó luôn parent-confirmed.
+- **Phạm vi:** *seed* (gắn nhãn `virtue` cho template + nhóm checklist/onboarding theo đức tính) — **MVP Core**,
+  thuần nội dung, không cơ chế mới. Hệ đầy đủ (ladder theo tuổi qua proposal, vòng cung cha mẹ, garden theo đức
+  tính) — **post-MVP**.
+
+## 10. Báo cáo theo chu kỳ (tuần / tháng / năm) + Phân tích AI hai chiều (con & phụ huynh) + Lời khuyên
+
+Ba nhịp báo cáo, đi cùng nguyên tắc "khác cadence" của 2 trụ cột (con = hằng ngày; cha mẹ = khoảnh khắc + tổng kết).
+Xây trên giọng "Lá thư Chủ nhật" (#7) và phần phản tư cha mẹ (#8).
+
+| Nhịp | Nội dung | AI? | Phạm vi |
+|---|---|---|---|
+| **Tuần** ("Lá thư Chủ nhật") | điểm sáng tuần của con (mô tả-cụ-thể, không xếp hạng) + 1 phản tư cho cha mẹ + 1 lời khuyên nhỏ | có (fallback template tĩnh) | MVP+ |
+| **Tháng** | gộp 4 tuần → xu hướng nhẹ theo đức tính (tăng trưởng, không điểm) + 1–2 gợi ý điều chỉnh checklist (qua proposal) | có | post-MVP |
+| **Năm** ("Câu chuyện lớn lên") | hồi tưởng celebratory + vòng cung đức tính cả năm + xuất PDF | có | post-MVP (PDF vốn đã post-MVP) |
+
+**Phân tích AI hai chiều — đây là điểm khác biệt, không chỉ là "report của con":**
+- **Về con:** mô tả tiến bộ theo hành vi/đức tính, *strength-based* (Nelsen: nhấn **tiến bộ & nỗ lực**, không chỉ
+  kết quả). KHÔNG chẩn đoán, KHÔNG so sánh với trẻ khác/anh chị em, KHÔNG dán nhãn nhân cách.
+- **Về phụ huynh:** phản tư riêng tư về tự điều tiết ("tuần này lúc nào mình giữ được bình tĩnh? lúc nào khó?")
+  — **ghi nhận tiến bộ của chính cha mẹ**, KHÔNG chấm điểm "cha mẹ tốt/tệ", KHÔNG gây tội lỗi, KHÔNG chẩn đoán
+  tâm lý cha mẹ. Nguyên tắc no-shame/no-compare áp dụng cho **cả cha mẹ**.
+- **Lời khuyên:** cụ thể, khả thi, *parent-mediated* — gợi ý lời nói/cách tiếp cận theo Faber & Mazlish
+  (mô tả hành vi + công nhận cảm xúc + trao quyền/hỏi mở). Khi AI không chắc → fallback template an toàn +
+  gợi ý gặp chuyên gia thật.
+
+- **Entity:** mở rộng `weekly_summaries` thành `periodic_reports` với `period = 'week' | 'month' | 'year'`
+  (hoặc giữ `weekly_summaries` + bảng rollup). Phản tư cha mẹ dùng `caregiver_reflections` (#8) — KHÔNG
+  `point_ledger`, không có điểm cho cha mẹ.
+- **Guardrail dữ liệu/AI:** chạy qua backend proxy / Edge Function, gửi **tối thiểu** dữ liệu trẻ; AI **không**
+  nhắn trực tiếp con; cha mẹ duyệt trước khi (nếu) chia sẻ. Giữ giới hạn free-tier qua `ai_usage_counters`;
+  báo cáo sâu gate sau `plan = premium`. Bản **không-AI** của báo cáo tuần (template mô tả) là fallback luôn có.
+- **Phạm vi:** tuần — **MVP+**; tháng/năm — **post-MVP**.
+
 ---
 
 ## Checklist khi build phần AI (từ file nguồn mục 5)
@@ -124,8 +173,9 @@ App hiện chỉ ghi nhận con → vô tình ngụ ý "con là người cần s
 
 ## Thứ tự ưu tiên đề xuất
 
-1. (MVP Core seed) Nhóm hành vi EQ trong checklist — mục 1.
-2. (MVP+) Prompt khuyến khích Faber & Mazlish + giọng lá thư tuần — mục 2, 7.
+1. (MVP Core seed) Nhóm hành vi EQ trong checklist + gắn nhãn **trục đức tính** cho template — mục 1, 9 (seed).
+2. (MVP+) Prompt khuyến khích Faber & Mazlish + **báo cáo tuần** (lá thư + phân tích AI hai chiều) — mục 2, 7, 10 (tuần).
 3. (MVP+) Gọi tên cảm xúc + Góc bình tĩnh bản tĩnh — mục 6, 3.
 4. (post-MVP) Thư viện tình huống (nội dung tĩnh trước) — mục 4.
 5. (post-MVP) AI Parenting Coach — mục 5.
+6. (post-MVP) Hệ **trục đức tính** đầy đủ + **báo cáo tháng/năm** (vòng cung + PDF) — mục 9 (đầy đủ), 10 (tháng/năm).

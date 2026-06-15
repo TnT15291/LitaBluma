@@ -14,6 +14,19 @@ export type HabitStage = 'new' | 'building' | 'stable' | 'recognition_only';
 
 export type RewardType = 'choice' | 'activity' | 'privilege' | 'object';
 
+/**
+ * Character virtues — a long-running *axis* that organizes behaviors and follows
+ * the child as they grow (task difficulty rises with the age band). This is a
+ * recognition lens, NOT a graded curriculum: behaviors are still just logged,
+ * never scored per virtue, never used to label or rank the child.
+ */
+export type Virtue =
+  | 'independence' // tự lập
+  | 'responsibility' // trách nhiệm
+  | 'emotional_regulation' // kiểm soát cảm xúc
+  | 'empathy' // đồng cảm
+  | 'perseverance'; // kiên trì
+
 /** Where a point_ledger entry came from. Behavior is always non-negative. */
 export type LedgerSource = 'behavior' | 'bonus' | 'redemption';
 
@@ -38,6 +51,8 @@ export interface ChecklistItem {
   status: 'active' | 'archived';
   habitStage: HabitStage;
   category?: string | null;
+  /** Character axis. Null for custom items with no chosen virtue. */
+  virtue?: Virtue | null;
   createdBy: string;
   createdAt: string;
 }
@@ -120,6 +135,7 @@ export interface BehaviorTemplate {
   title: string;
   defaultPoints: number;
   category: string;
+  virtue: Virtue;
 }
 
 /**

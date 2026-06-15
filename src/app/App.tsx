@@ -4,6 +4,8 @@ import { StoreProvider, useStore } from '@/lib/mock/store';
 import { ParentalGate } from '@/features/parental-gate/ParentalGate';
 import { ChildHome } from '@/routes/ChildHome';
 import { ParentDashboard } from '@/routes/ParentDashboard';
+import { ParentWeeklyReport } from '@/routes/ParentWeeklyReport';
+import { ParentManage } from '@/routes/ParentManage';
 import { Onboarding } from '@/routes/Onboarding';
 
 export function App() {
@@ -41,6 +43,22 @@ function AppRoutes() {
         element={
           <ParentalGate unlocked={parentUnlocked} onUnlock={() => setParentUnlocked(true)}>
             <ParentDashboard />
+          </ParentalGate>
+        }
+      />
+      <Route
+        path="/parent/report"
+        element={
+          <ParentalGate unlocked={parentUnlocked} onUnlock={() => setParentUnlocked(true)}>
+            <ParentWeeklyReport />
+          </ParentalGate>
+        }
+      />
+      <Route
+        path="/parent/manage"
+        element={
+          <ParentalGate unlocked={parentUnlocked} onUnlock={() => setParentUnlocked(true)}>
+            <ParentManage />
           </ParentalGate>
         }
       />

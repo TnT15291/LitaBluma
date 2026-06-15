@@ -3,9 +3,9 @@ import { templatesForBand, selectParentPause } from './templates';
 import type { BehaviorTemplate, ParentPausePrompt } from './types';
 
 const templates: BehaviorTemplate[] = [
-  { id: 'a', ageBand: '4-5', title: 'A', defaultPoints: 1, category: 'routine' },
-  { id: 'b', ageBand: '6-7', title: 'B', defaultPoints: 2, category: 'eq' },
-  { id: 'c', ageBand: '4-5', title: 'C', defaultPoints: 2, category: 'eq' },
+  { id: 'a', ageBand: '4-5', title: 'A', defaultPoints: 1, category: 'routine', virtue: 'independence' },
+  { id: 'b', ageBand: '6-7', title: 'B', defaultPoints: 2, category: 'eq', virtue: 'empathy' },
+  { id: 'c', ageBand: '4-5', title: 'C', defaultPoints: 2, category: 'eq', virtue: 'perseverance' },
 ];
 
 describe('templatesForBand', () => {
