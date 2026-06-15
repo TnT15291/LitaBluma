@@ -153,3 +153,32 @@ export interface ConsentRecord {
   version: string;
   acceptedAt: string;
 }
+
+/**
+ * Editorially-written parent-coaching scenario (the non-AI situation library —
+ * product-spec §16.2, feature-ideas #4). Static content, never child data, no
+ * diagnosis. Structured on the Phan Hồ Điệp 4-step: acknowledge → calm →
+ * empathize → resolve, plus a common mistake to avoid. This is the buildable-now
+ * seed of the premium AI Parenting Coach.
+ */
+export interface SituationGuide {
+  id: string;
+  title: string;
+  /** Age bands this scenario applies to (a situation can span several). */
+  ageBands: AgeBand[];
+  /** What the child is likely feeling. */
+  emotion: string;
+  /** Why it tends to happen — framed without blame or diagnosis. */
+  cause: string;
+  /** Optional link to the virtue axis (e.g. emotional_regulation). */
+  virtue?: Virtue | null;
+  /** The 4-step parent response, as concrete things to say/do. */
+  steps: {
+    acknowledge: string;
+    calm: string;
+    empathize: string;
+    resolve: string;
+  };
+  /** A common mistake to avoid. */
+  avoid: string;
+}

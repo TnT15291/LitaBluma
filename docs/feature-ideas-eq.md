@@ -162,6 +162,27 @@ Xây trên giọng "Lá thư Chủ nhật" (#7) và phần phản tư cha mẹ (
   báo cáo sâu gate sau `plan = premium`. Bản **không-AI** của báo cáo tuần (template mô tả) là fallback luôn có.
 - **Phạm vi:** tuần — **MVP+**; tháng/năm — **post-MVP**.
 
+## 11. Vòng đời tới 16 tuổi — child mode tắt ở dậy thì, chỉ còn trụ cột cha mẹ (post-MVP — định hướng 2026-06-16)
+
+App đi theo cả tuổi thơ của con, không chỉ 4–10. Xem [product-spec.md](product-spec.md) §16.3.
+
+- **4–10 (dual mode, đang làm):** vòng lặp vườn/điểm/thưởng của con + trụ cột cha mẹ đan xen.
+- **~11+ (dậy thì → parent-only):** vườn/điểm/thưởng **không hợp** tuổi teen → **gỡ bỏ** child mode; app thành **bạn đồng hành coaching cho cha mẹ** (kịch bản giao tiếp, xử lý xung đột, EQ tuổi teen). Trụ cột cha mẹ trở thành *toàn bộ* sản phẩm.
+- **Dữ liệu:** thêm `age_band` `11-13`, `14-16`; chuyển dual → parent-only **derive từ ngày sinh** (như band hiện có). Một cờ chế độ ở runtime, không lưu.
+- **Open decision:** mốc cắt child mode chính xác (đề xuất **11**) + cách truyền đạt chuyển đổi (ấm, "con đang lớn lên" — không bao giờ "bạn để vườn chết").
+- **Guardrail:** dữ liệu teen nhạy cảm hơn; mọi rule child-privacy vẫn áp dụng; review COPPA/tương đương trước khi phát hành. Vẫn không chẩn đoán, AI vẫn parent-mediated.
+- **Phạm vi:** post-MVP. Phần lớn là **nội dung + mode-switch, không cần AI** → làm được không phụ thuộc backend; lớp AI coach cho teen đi sau.
+
+## 12. Chống lặp — đời sống hằng ngày ngoài checklist (post-MVP — định hướng 2026-06-16)
+
+Checklist cố định *bản chất là lặp* (habit hình thành nhờ lặp) — không churn list. Cái cần giải là **app có quá ít thứ ngoài list**. Xem [product-spec.md](product-spec.md) §16.1. Gom các mảnh đã có thành một nguyên tắc:
+
+- **Gọi tên cảm xúc** (#6) làm *touch hằng ngày* đổi mới, nuôi vườn.
+- **"Việc của tuần"** — nổi bật 1–2 hành vi/tuần thay vì list phẳng.
+- **Góc bình tĩnh** (#3) — tương tác, đổi vị.
+- **Vườn sống động** (#9) — cây theo đức tính, sự kiện bất ngờ/theo mùa.
+- **Guardrail:** tất cả tích cực, không áp lực/streak, không điểm thô cho trẻ — đúng tinh thần child mode. Tất cả **không cần AI**.
+
 ---
 
 ## Checklist khi build phần AI (từ file nguồn mục 5)
@@ -173,9 +194,12 @@ Xây trên giọng "Lá thư Chủ nhật" (#7) và phần phản tư cha mẹ (
 
 ## Thứ tự ưu tiên đề xuất
 
-1. (MVP Core seed) Nhóm hành vi EQ trong checklist + gắn nhãn **trục đức tính** cho template — mục 1, 9 (seed).
-2. (MVP+) Prompt khuyến khích Faber & Mazlish + **báo cáo tuần** (lá thư + phân tích AI hai chiều) — mục 2, 7, 10 (tuần).
-3. (MVP+) Gọi tên cảm xúc + Góc bình tĩnh bản tĩnh — mục 6, 3.
-4. (post-MVP) Thư viện tình huống (nội dung tĩnh trước) — mục 4.
-5. (post-MVP) AI Parenting Coach — mục 5.
-6. (post-MVP) Hệ **trục đức tính** đầy đủ + **báo cáo tháng/năm** (vòng cung + PDF) — mục 9 (đầy đủ), 10 (tháng/năm).
+*(Re-prioritized 2026-06-16: product-owner muốn app sâu hơn checklist và xem lớp coaching là lý do trả tiền. Các phần **không-AI, không phụ thuộc backend** được kéo lên — chúng đứng độc lập trong khi store swap Supabase đang chờ.)*
+
+1. (MVP Core seed — done) Nhóm hành vi EQ + nhãn **trục đức tính** cho template — mục 1, 9 (seed).
+2. (post-MVP, **không cần AI** — kéo lên) **Thư viện tình huống tĩnh** (4 bước Phan Hồ Điệp) — mục 4. Đây là thứ biến app từ tracker thành coach và là seed của AI Coach.
+3. (post-MVP, **không cần AI** — kéo lên) **Chống lặp / đời sống hằng ngày**: gọi tên cảm xúc, việc của tuần, góc bình tĩnh — mục 12, 6, 3.
+4. (MVP+) Prompt khuyến khích Faber & Mazlish + **báo cáo tuần** (lá thư + phân tích AI hai chiều) — mục 2, 7, 10 (tuần). *(cần backend proxy)*
+5. (post-MVP) **AI Parenting Coach** — mục 5. *(premium, cần backend proxy — reason to pay)*
+6. (post-MVP) **Vòng đời tới 16 + parent-only mode** — mục 11. *(nội dung + mode-switch, phần lớn không cần AI)*
+7. (post-MVP) Hệ **trục đức tính** đầy đủ + **báo cáo tháng/năm** (vòng cung + PDF) — mục 9 (đầy đủ), 10 (tháng/năm).

@@ -7,6 +7,7 @@ import { ParentDashboard } from '@/routes/ParentDashboard';
 import { ParentWeeklyReport } from '@/routes/ParentWeeklyReport';
 import { ParentManage } from '@/routes/ParentManage';
 import { ParentPrivacy } from '@/routes/ParentPrivacy';
+import { ParentSituations } from '@/routes/ParentSituations';
 import { Onboarding } from '@/routes/Onboarding';
 
 export function App() {
@@ -68,6 +69,14 @@ function AppRoutes() {
         element={
           <ParentalGate unlocked={parentUnlocked} onUnlock={() => setParentUnlocked(true)}>
             <ParentPrivacy />
+          </ParentalGate>
+        }
+      />
+      <Route
+        path="/parent/situations"
+        element={
+          <ParentalGate unlocked={parentUnlocked} onUnlock={() => setParentUnlocked(true)}>
+            <ParentSituations />
           </ParentalGate>
         }
       />

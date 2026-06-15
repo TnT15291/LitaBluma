@@ -55,7 +55,7 @@ Do NOT split the screen 50/50. See idea #8 in [feature-ideas-eq.md](feature-idea
 
 - Store **day / month / year of birth** — do NOT store age.
 - Age is computed at runtime each time the app opens (by months for young children).
-- Content and AI tone shift by **dynamic age band**: 4–5 / 6–7 / 8–10.
+- Content and AI tone shift by **dynamic age band**: 4–5 / 6–7 / 8–10 (extending to `11-13` / `14-16` as the product follows the child to puberty — see §16.3, where child mode is retired and only the parent-coaching pillar remains).
 - **Auto-notify when the child is about to cross a band** ("Bé sắp 7 tuổi, cập nhật checklist nhé?").
 - **Birthday moment**: a special "one year, look how you've grown" screen + suggestion to raise the band.
 
@@ -78,7 +78,10 @@ Three layers to keep the MVP from bloating and ship a fast prototype.
 
 ### 6.3 Post-MVP
 - Child self-assessment (child ticks + says what they did well → parent approves).
+- **Situation library** (parent coaching, non-AI, editorially-written — §16.2; the buildable-now seed of the paid coaching layer).
 - AI Parenting Coach.
+- **Daily-variety layers** beyond the checklist (emotion check-in, "việc của tuần", calm corner — §16.1).
+- **Lifecycle to 16**: teen age bands + parent-only mode at puberty (§16.3).
 - Growth journal.
 - Multiple children, multi-device sync (mom + dad).
 - End-of-year "the child's book" PDF.
@@ -259,3 +262,29 @@ Analyzes a situation, explains the cause, and suggests an appropriate response (
 - Child privacy protection.
 
 *(AI encouragement + weekly summary are MVP+ criteria; they do not block MVP Core.)*
+
+## 16. Product direction — depth & lifecycle (decided 2026-06-16)
+
+Three directions captured from product-owner feedback: the product must be **richer than a checklist**, the **parent-coaching layer is the paid value**, and the product should **follow the child's whole childhood, not just ages 4–10**. These deliberately pull post-MVP ambition forward. Build order still does the non-AI / non-backend pieces first (so nothing waits on the Supabase swap that is in progress).
+
+### 16.1 The checklist is the floor, not the product
+A fixed daily checklist is, by design, repetitive — habits form *through* repetition, so churning the list is the wrong fix. The thinness to solve is that the **app offers little beyond the list**. Daily life should come from layers *around* the checklist, all non-AI and consistent with the no-pressure / no-streak rules:
+- **Emotion check-in** ("gọi tên cảm xúc") — a light, varied daily touch that also feeds the garden (feature-ideas #6).
+- **"Việc của tuần"** — surface 1–2 focus behaviors at a time instead of a flat list of ten.
+- **Calm corner** ("góc bình tĩnh") — interactive, varied (feature-ideas #3).
+- **A living garden** — per-virtue plants, surprises / seasonal moments (feature-ideas #9).
+
+### 16.2 Coaching is the depth that justifies paying
+"Just a checklist" is not enough for a paid app. The differentiator is the parent-coaching layer (the parent pillar, §4), in two tiers:
+- **Situation library (non-AI, buildable now):** editorially-written scenarios per age band using the Phan Hồ Điệp 4-step — *Acknowledge → Calm → Empathize → Resolve* + "avoid this." E.g. the child is angry, lies, fears school. Static content, no backend, no diagnosis. Turns the app from a tracker into a coach and seeds the AI layer (feature-ideas #4).
+- **AI Parenting Coach (premium, needs backend proxy):** the parent describes a real situation → AI analyzes per the EQ framework and suggests Faber & Mazlish phrasing. Parent-mediated, never messages the child, no diagnoses, safe-template fallback. This is the reason to pay (feature-ideas #5, §8).
+
+### 16.3 Lifecycle to 16 — child mode fades at puberty, the parent pillar remains
+The product follows the child's growth, not only ages 4–10:
+- **4–10 (dual mode, current focus):** the garden / seed-points / rewards child loop + the woven parent pillar.
+- **~11+ (puberty → parent-only mode):** the gamified child-facing surface (garden, seed points, rewards) is developmentally wrong for teens and is **retired**. The app becomes a **parent coaching companion** — communication scripts, conflict handling, EQ for adolescents. The parent pillar becomes the whole product.
+- New age bands `11-13`, `14-16`; the dual → parent-only switch is **derived from birth date**, like the existing bands.
+- **Open decision:** the exact cutoff age for retiring child mode (proposed: **11**) and how the transition is communicated to the parent (warm, "your child is growing up" — never "you failed the garden").
+- **Privacy note:** teen data sensitivity is higher; all child-privacy rules still apply, and a COPPA / local-equivalent review is required before any release covering minors.
+
+**Scope:** all three are post-MVP relative to the current plan. Per "do the non-AI parts first," the situation library (16.2) and the daily-variety layers (16.1) are the buildable-now pieces; the AI Coach waits on the backend proxy.

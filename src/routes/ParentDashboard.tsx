@@ -168,15 +168,26 @@ export function ParentDashboard() {
           </Panel>
         </div>
 
-        <Link
-          to="/parent/report"
-          className="flex items-center justify-between gap-3 rounded-2xl bg-calm-100 px-4 py-3 text-sm font-medium text-calm-700 transition-colors hover:bg-calm-200"
-        >
-          <span className="inline-flex items-center gap-2">
-            <span aria-hidden>✉️</span> Lá thư tuần này
-          </span>
-          <span aria-hidden>→</span>
-        </Link>
+        <div className="grid gap-2.5 sm:grid-cols-2">
+          <Link
+            to="/parent/report"
+            className="flex items-center justify-between gap-3 rounded-2xl bg-calm-100 px-4 py-3 text-sm font-medium text-calm-700 transition-colors hover:bg-calm-200"
+          >
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden>✉️</span> Lá thư tuần này
+            </span>
+            <span aria-hidden>→</span>
+          </Link>
+          <Link
+            to="/parent/situations"
+            className="flex items-center justify-between gap-3 rounded-2xl bg-calm-100 px-4 py-3 text-sm font-medium text-calm-700 transition-colors hover:bg-calm-200"
+          >
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden>🧭</span> Cẩm nang tình huống
+            </span>
+            <span aria-hidden>→</span>
+          </Link>
+        </div>
 
         {birthday && (
           <Panel className="flex items-start gap-3 border-calm-300 bg-calm-100">
