@@ -40,7 +40,7 @@ These keep parents (and children) coming back; they are product surfaces, not ju
 ### Parental Gate
 - Required for switching from child mode to parent mode.
 - Required for deleting data, exporting data, changing child profile, enabling AI, or changing sensitive settings.
-- MVP can use a simple PIN stored securely enough for prototype use. Production should revisit auth-backed verification.
+- MVP can use a simple PIN stored securely enough for prototype use. Production target (decided 2026-06-15): **device biometric / WebAuthn** as primary verification with a **PIN fallback** for devices/installs where WebAuthn is unavailable.
 
 ## Data Model
 

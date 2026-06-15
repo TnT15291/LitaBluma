@@ -145,6 +145,13 @@ interface StoreApi {
   applyProposal: (proposal: Proposal) => boolean;
   /** Decline a proposal so it is not shown again (no data change). */
   dismissProposal: (proposalId: string) => void;
+  /**
+   * Privacy delete: erase the child profile and ALL related data, returning to
+   * a clean first-run state. The parent's right to delete (rules.md). On the
+   * real backend this maps to a soft-delete + `data_deletion_requests`; here it
+   * clears everything locally. Distinct from `reset` (a demo affordance).
+   */
+  deleteChildAndData: () => void;
   reset: () => void;
 }
 
@@ -372,7 +379,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             if (t) next.title = t;
           }
           // Config change only — never writes the point ledger.
-          if (patch.pointsValue !== undefined) next.pointsValue = Math.max(1, Math.round(patch.pointsValue));
+          if (patch.pointsValue !== undefined)
+            next.pointsValue = Math.max(1, Math.round(patch.pointsValue));
           if (patch.virtue !== undefined) next.virtue = patch.virtue;
           return next;
         }),
@@ -441,7 +449,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const checklist = state.checklist.map((c) => {
         if (c.id !== proposal.itemId) return c;
         if (proposal.effect.type === 'set_points') {
-          return { ...c, pointsValue: proposal.effect.points, habitStage: proposal.effect.nextStage };
+          return {
+            ...c,
+            pointsValue: proposal.effect.points,
+            habitStage: proposal.effect.nextStage,
+          };
         }
         return { ...c, status: 'archived' as const };
       });
@@ -467,6 +479,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [state, update],
   );
 
+  const deleteChildAndData = useCallback(() => update(initialState()), [update]);
+
   const reset = useCallback(() => update(initialState()), [update]);
 
   const api = useMemo<StoreApi>(() => {
@@ -479,9 +493,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           templates: BEHAVIOR_TEMPLATES,
         })
       : null;
-    const proposals = [...(bandReview ? [bandReview] : []), ...deriveProposals(state.checklist, state.logs)].filter(
-      (p) => !dismissed.has(p.id),
-    );
+    const proposals = [
+      ...(bandReview ? [bandReview] : []),
+      ...deriveProposals(state.checklist, state.logs),
+    ].filter((p) => !dismissed.has(p.id));
     return {
       state,
       onboarded: state.consent !== null && state.child !== null,
@@ -501,6 +516,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateChild,
       applyProposal,
       dismissProposal,
+      deleteChildAndData,
       reset,
     };
   }, [
@@ -518,6 +534,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     updateChild,
     applyProposal,
     dismissProposal,
+    deleteChildAndData,
     reset,
   ]);
 

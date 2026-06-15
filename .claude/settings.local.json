@@ -31,7 +31,10 @@
       "Bash(rm -rf .tmp-shots dist/seedshot.html)",
       "Bash(pkill -f \"vite preview\")",
       "Bash(echo \"lint-exit: $?\")",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4173/onboarding)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4173/onboarding)",
+      "PowerShell(npm install @supabase/supabase-js)",
+      "PowerShell(npm run lint)",
+      "PowerShell(npm install -D vite-plugin-pwa)"
     ],
     "additionalDirectories": [
       "d:\\Projects\\LitaBluma",

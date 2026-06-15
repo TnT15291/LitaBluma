@@ -1,0 +1,11 @@
+# Supabase local config for LitaBluma.
+# Apply migrations with `supabase db reset` (local) or `supabase db push` (linked
+# project). See supabase/README.md.
+project_id = "litabluma"
+
+[db]
+major_version = 15
+
+[auth]
+# Email/password is enough for the MVP parent account.
+enable_signup = true

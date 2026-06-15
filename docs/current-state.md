@@ -33,7 +33,11 @@ Last updated: 2026-06-15
 - **Weekly report (non-AI — "Lá thư tuần này"):** gated route `/parent/report`, reachable from a dashboard link. Strength-based summary of the last 7 days (good moments, active days, highlights by virtue, top behaviors) + one rotating parent reflection + tip. No score/ranking; `not_yet` excluded; parent-only. The AI dual-analysis layer (child + parent) and monthly/yearly cadences are deferred (feature-ideas #10, needs the backend proxy).
 - **Checklist & profile management (Phase 3):** gated route `/parent/manage` (tap the child header on the dashboard). Edit the child profile (name, birth date with live band, avatar); add checklist items (custom or one-tap from age-band suggestions), edit title/points/virtue, archive/restore, and hard-delete only items with no logs (history is never erased). Store actions `addChecklistItem` / `updateChecklistItem` / `archiveChecklistItem` / `restoreChecklistItem` / `removeChecklistItem` / `updateChild` — a points edit changes only future logs, never the ledger.
 - **Parent-confirmed proposals (app suggests, parent decides):** the parent dashboard has an "Đề xuất từ ứng dụng" section ("Ứng dụng gợi ý — bạn là người quyết định") listing app-derived proposals. Each is accept (`applyProposal`) or decline (`dismissProposal`); nothing auto-applies. Store keeps `dismissedProposalIds` so handled cards never reappear. Applying a taper changes only the item's `pointsValue` + `habitStage` (future logs), never rewriting past ledger entries — points stay a ledger. `habitStage` now actually advances (first place it changes after creation). Recurring-`not_yet` proposals (and their archive action) live strictly in parent scope; child mode is untouched. **Band transition** is now an actionable `band_review` proposal whose "Xem gợi ý" link goes to `/parent/manage` (which shows the *upcoming* band's suggestions when a transition is near) — the parent adds each item by hand; nothing is auto-added. The dashboard birthday banner is now purely celebratory.
-- **Tests:** 81 passing — ledger, age-band, garden, recognition, templates, parent-pause, proposal derivation incl. band_review (16), virtue grouping + template validity (5), weekly-report aggregation (6), store management actions (6), ParentDashboard integration (8: proposal apply/decline, micro-pause, band_review surface/dismiss), ParentWeeklyReport render (2), ParentManage render (3).
+- **Tests:** 86 passing — ledger, age-band, garden, recognition, templates, parent-pause, proposal derivation incl. band_review (16), virtue grouping + template validity (5), weekly-report aggregation (6), store management actions (6), ParentDashboard integration (8: proposal apply/decline, micro-pause, band_review surface/dismiss), ParentWeeklyReport render (2), ParentManage render (3), ParentDashboard empty-checklist (1), ChildHome empty/loaded rewards (2), ParentPrivacy delete flow (2).
+- **Privacy & data surface (MVP Core privacy baseline):** gated route `/parent/privacy` (linked from the dashboard footer). Shows what is stored (profile + counts of checklist/logs/rewards/redemptions), reaffirms what is deliberately NOT stored (no real photos, no location/school/phone, age never stored), the consent record (version + date), and a **clear delete path**: a two-step, explicit "delete child profile + all data" that calls the new store action `deleteChildAndData` (returns to a clean first-run state; on the real backend this maps to soft-delete + `data_deletion_requests`) and routes back to onboarding. The demo "reset" affordance now lives here too, kept visually distinct from the real delete. Tested (`ParentPrivacy.test.tsx`: confirm gating + actual erase).
+- **PWA (PWA-first, architecture.md):** `vite-plugin-pwa` (Workbox `generateSW`, `registerType: autoUpdate`) generates `manifest.webmanifest` + service worker precaching the hashed build assets with an SPA `navigateFallback` for offline. Web app manifest (vi, standalone, portrait, theme `#3f7d52`), `public/icon.svg` + `public/favicon.svg` (on-brand seedling), SW registered in `main.tsx` (`virtual:pwa-register`, immediate; disabled in dev). `dev-dist/` gitignored. Note: icons are SVG — add 192/512 PNGs for full store-grade installability before any store release.
+- **UI quality + a11y polish (2026-06-15/16):** empty states for the child rewards garden and the parent checklist (CTA to manage); child mode 2-column landscape on `lg`; global `color-scheme: light` (keeps native date/number/checkbox controls from inverting under a dark OS theme); child-scope focus ring recolored on-palette (leaf, not the parent cool blue). The base already had global `:focus-visible` + reduced-motion handling.
+- **Supabase schema + RLS (Phase persistence — schema done, store swap pending):** `supabase/migrations/` — `0001_schema.sql` (enums, tables, constraints, indexes, the append-only `point_ledger` with a `ledger_sign` CHECK + a `BEFORE INSERT` overdraft-guard trigger), `0002_rls.sql` (`is_family_member`/`owns_child` security-definer helpers, a `bootstrap_family()` RPC for first sign-in, RLS policies on every table — child/operational rows scoped via `owns_child`, ledger + logs + redemptions are append/read-only, static content world-readable to authenticated), `0003_seed_content.sql` (behavior templates, recognition phrases, parent-pause prompts — 1:1 with `src/lib/mock/content.ts`, idempotent). `supabase/config.toml` + `supabase/README.md` document apply/design. Frontend scaffold: `@supabase/supabase-js` installed, `src/lib/supabase/client.ts` (env-guarded lazy client — app still builds/runs on the mock store without env) + `database.types.ts` (hand-written, matches the migrations) + `.env.example`. **Not yet done:** swapping the mock `StoreProvider` for a real async repository behind the same interface (needs a live Supabase project to wire + test, and a loading/error-state pass on the UI).
 
 ## How To Run
 
@@ -88,6 +92,18 @@ Post-MVP:
 - **App suggests, parent decides (now a rule).** The app never auto-changes a child's checklist, points, or rewards; band-transition / habit-tapering / recurring-`not_yet` changes are parent-confirmed proposals. See rules.md.
 - **Anti-boredom: added rotating recognition-phrase library to MVP Core** (non-AI). New entity `recognition_phrases`; recognition wording must vary and never repeat identically. See architecture.md + product-spec §7.
 
+### Decisions resolved 2026-06-15 (pre-persistence)
+
+These closed the open items below so the Supabase schema can be built:
+
+- **Birth date granularity:** store the **full `birth_date`** (`YYYY-MM-DD`). It is the one mildly-sensitive child field but is needed for accurate birthday moments and band transitions, and matches the ISO date the code already uses everywhere. Age is still never stored — always derived at runtime.
+- **Behavior-log retention:** **keep detailed logs while the child profile is active; purge them with the profile.** Garden growth is derived cumulatively from all positive logs, so rolling logs off would break deterministic rebuild. Deletion follows the profile delete path (soft-delete → controlled hard-delete).
+- **Parental gate (production):** target **device biometric / WebAuthn** as the primary verify, with a **PIN fallback** (WebAuthn support/UX varies across devices and PWA installs). MVP keeps the existing PIN; the WebAuthn layer lands at the parental-gate production step.
+- **Auth:** adopt **Supabase Auth immediately** when wiring persistence (not a mock/local caregiver). RLS is scoped by caregiver/family from day one so row-ownership is verified for real.
+- **Garden growth formula — ratified as implemented** (`src/lib/domain/garden.ts`): `completed` = +2, `tried` = +1, `not_yet` = 0; stage thresholds `[0, 3, 8, 16, 28, 45]` for seed→sprout→plant→flower→tree→butterflies. Deterministic and rebuildable from logs.
+- **Recognition rotation — ratified as implemented** (`src/lib/domain/recognition.ts`): random among eligible phrases, never repeating the immediately previous line for that child/behavior. (Chosen over full LRU; sufficient for MVP variety.)
+- **Delivery target — ratified:** **web-only PWA for MVP**; revisit app-store packaging only after a COPPA/equivalent review (per rules.md), never before.
+
 ## Idea Backlog
 
 - EQ & communication feature ideas derived from the two parenting books are captured in `docs/feature-ideas-eq.md` (scoped by MVP Core / MVP+ / post-MVP; not yet committed to the plan).
@@ -95,23 +111,20 @@ Post-MVP:
 
 ## Open Decisions
 
-- Whether to store full `birth_date` or only month/year plus optional birthday day.
-- Exact retention period for detailed behavior logs.
-- Whether MVP requires Supabase Auth immediately or can start with local/mock auth for prototype.
-- Exact garden growth formula.
-- Exact parental gate implementation for MVP.
-- Initial checklist template content for each age band.
-- Initial recognition-phrase content per age band/category, and the exact rotation strategy (e.g. least-recently-used vs random-no-immediate-repeat).
-- Whether the first build should be web-only PWA or also packaged for app stores later.
+Resolved 2026-06-15 (see "Decisions resolved" above): birth_date granularity, log retention, Supabase Auth timing, garden formula, parental-gate production approach, recognition rotation strategy, web-only-PWA-vs-store. Remaining:
+
+- Initial checklist template content for each age band (seed exists; needs full coverage).
+- Initial recognition-phrase content per age band/category (rotation strategy now decided; content still needs expansion).
+- WebAuthn parental-gate implementation details (PIN fallback storage, per-device enrollment) — deferred to the parental-gate production step.
 
 ## Immediate Next Steps
 
 Done: scaffold, TS/Tailwind/routing, domain types, mock-data flows, tests for ledger/age-band/garden/recognition, the parent-confirmed proposals system (incl. `band_review`), the in-place parent micro-pause, the character-virtue axis seed, the non-AI weekly report ("Lá thư tuần này"), and checklist/profile management (`/parent/manage`).
 
 Next:
-1. Remaining Phase 3 UI quality: empty/loading/error/success states across surfaces, mobile + tablet-landscape polish for child mode. (Child-profile edit + checklist management now done.)
-2. Add Supabase schema and RLS scoped by family/caregiver; swap the mock store for a real repository behind the same interface.
-3. Seed the full age-band checklist templates and recognition-phrase library (virtue tags now exist as a seed; expand coverage).
+1. Phase 3 UI quality (partly done 2026-06-15): added empty states for the child "Vườn quà" garden (no rewards yet) and the parent dashboard checklist (no active items → CTA to `/parent/manage`); child mode now uses a 2-column landscape layout on `lg` (garden left, cards right — the garden illustration stays `max-w-sm`, so it isn't enlarged). **Remaining:** loading/error/success states proper (these land with the async repository swap — the mock store is synchronous so there is nothing to load yet), and further mobile polish.
+2. **Supabase schema + RLS: DONE** (`supabase/migrations/`, scoped by family/caregiver — see "What Exists In Code"). **Remaining:** create/link a Supabase project, apply the migrations, then swap the mock `StoreProvider` for a real async repository behind the same `StoreApi` interface (add auth sign-in + `bootstrap_family()` call, and a loading/error-state pass since reads become async).
+3. Seed the full age-band checklist templates and recognition-phrase library (expanded 2026-06-15: behavior templates 23 → 32, ~3 more per band keeping all 5 virtues; recognition phrases 8 → 22 with broad/category/band-specific lines so rotation repeats less. Both mirrored 1:1 into `supabase/migrations/0003_seed_content.sql`. Still room to grow further.)
 4. Decide the open items below before persistence (birth_date granularity, garden formula, parental-gate production approach).
 5. Phase 4 / MVP+: layer AI dual-analysis (child + parent) onto the weekly report via the backend proxy, and add monthly/yearly cadences + the full virtue ladder (feature-ideas #9, #10).
 

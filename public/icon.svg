@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="LitaBluma">
+  <rect width="512" height="512" rx="112" fill="#3f7d52"/>
+  <!-- soil mound -->
+  <ellipse cx="256" cy="396" rx="150" ry="40" fill="#2f5e3e"/>
+  <!-- stem -->
+  <path d="M256 396 C256 320 256 280 256 236" stroke="#eaf6ec" stroke-width="20" stroke-linecap="round" fill="none"/>
+  <!-- left leaf -->
+  <path d="M256 300 C200 296 168 256 168 212 C220 212 256 248 256 300 Z" fill="#cdeccd"/>
+  <!-- right leaf -->
+  <path d="M256 276 C312 272 348 232 348 188 C292 188 256 224 256 276 Z" fill="#eaf6ec"/>
+  <!-- bud -->
+  <circle cx="256" cy="208" r="34" fill="#f4c24b"/>
+  <circle cx="256" cy="208" r="14" fill="#f6d98a"/>
+</svg>

@@ -44,6 +44,9 @@ export const BEHAVIOR_TEMPLATES: BehaviorTemplate[] = [
   t('t45_calm', '4-5', 'Hít thở khi tức giận', 3, 'eq', 'emotional_regulation'),
   t('t45_table', '4-5', 'Giúp dọn bàn ăn', 2, 'family', 'responsibility'),
   t('t45_retry', '4-5', 'Thử lại khi chưa làm được', 2, 'eq', 'perseverance'),
+  t('t45_water', '4-5', 'Tự uống nước, không làm đổ', 1, 'routine', 'independence'),
+  t('t45_hello', '4-5', 'Chào hỏi ông bà, người lớn', 1, 'eq', 'empathy'),
+  t('t45_shoes', '4-5', 'Cất giày dép đúng chỗ', 1, 'routine', 'responsibility'),
   // 6–7
   t('t67_bag', '6-7', 'Tự chuẩn bị cặp sách', 2, 'routine', 'independence'),
   t('t67_homework', '6-7', 'Làm bài tập về nhà', 2, 'routine', 'responsibility'),
@@ -53,6 +56,9 @@ export const BEHAVIOR_TEMPLATES: BehaviorTemplate[] = [
   t('t67_chore', '6-7', 'Phụ giúp một việc nhà nhỏ', 2, 'family', 'responsibility'),
   t('t67_breathe', '6-7', 'Đếm hoặc hít thở khi bực bội', 3, 'eq', 'emotional_regulation'),
   t('t67_persist', '6-7', 'Kiên trì làm xong việc đang làm', 2, 'routine', 'perseverance'),
+  t('t67_read', '6-7', 'Đọc sách 10 phút', 2, 'routine', 'perseverance'),
+  t('t67_sibling', '6-7', 'Nhường nhịn em nhỏ', 2, 'eq', 'empathy'),
+  t('t67_desk', '6-7', 'Tự dọn góc học tập', 2, 'routine', 'responsibility'),
   // 8–10
   t('t810_time', '8-10', 'Tự quản lý thời gian làm bài', 3, 'routine', 'independence'),
   t('t810_room', '8-10', 'Dọn dẹp phòng riêng', 2, 'routine', 'responsibility'),
@@ -61,6 +67,9 @@ export const BEHAVIOR_TEMPLATES: BehaviorTemplate[] = [
   t('t810_finish', '8-10', 'Hoàn thành việc được giao', 2, 'family', 'perseverance'),
   t('t810_greet', '8-10', 'Chủ động chào hỏi mọi người', 1, 'eq', 'empathy'),
   t('t810_money', '8-10', 'Quản lý tiền tiêu vặt', 3, 'routine', 'responsibility'),
+  t('t810_plan', '8-10', 'Lập kế hoạch cho ngày mai', 3, 'routine', 'independence'),
+  t('t810_apology', '8-10', 'Chủ động xin lỗi khi làm sai', 2, 'eq', 'emotional_regulation'),
+  t('t810_chore', '8-10', 'Nhận một việc nhà cố định', 2, 'family', 'responsibility'),
 ];
 
 export interface RewardSuggestion {
@@ -110,14 +119,92 @@ export const WEEKLY_PARENT_TIPS: string[] = [
 ];
 
 export const RECOGNITION_PHRASES: RecognitionPhrase[] = [
+  // Broad — any band, any category (the most-reused pool, so keep it varied).
   rp('rp_done_1', null, null, 'completed', 'Con đã tự làm điều đó — bố mẹ thấy con lớn thật rồi!'),
   rp('rp_done_2', null, null, 'completed', 'Một hạt giống tốt vừa được gieo trong vườn của con.'),
+  rp(
+    'rp_done_6',
+    null,
+    null,
+    'completed',
+    'Việc nhỏ hôm nay là một bước con lớn lên. Bố mẹ thấy hết đấy!',
+  ),
+  rp(
+    'rp_done_7',
+    null,
+    null,
+    'completed',
+    'Khu vườn của con vừa thêm một mầm xanh nhờ điều con vừa làm.',
+  ),
+  // Broad — by category.
   rp('rp_done_3', null, 'routine', 'completed', 'Con nhớ tự làm việc này, giỏi quá đi!'),
+  rp(
+    'rp_done_8',
+    null,
+    'routine',
+    'completed',
+    'Con tự giác làm rồi — thói quen tốt đang lớn dần trong con.',
+  ),
   rp('rp_done_4', null, 'eq', 'completed', 'Con đã chọn cách cư xử thật ấm áp. Bố mẹ tự hào lắm.'),
-  rp('rp_done_5', null, 'family', 'completed', 'Cảm ơn con đã giúp cả nhà — con là người bạn nhỏ đáng tin.'),
+  rp(
+    'rp_done_9',
+    null,
+    'eq',
+    'completed',
+    'Cách con cư xử hôm nay thật dễ thương. Trái tim con đang lớn lên mỗi ngày.',
+  ),
+  rp(
+    'rp_done_5',
+    null,
+    'family',
+    'completed',
+    'Cảm ơn con đã giúp cả nhà — con là người bạn nhỏ đáng tin.',
+  ),
+  rp(
+    'rp_done_10',
+    null,
+    'family',
+    'completed',
+    'Con đã góp một tay cho cả nhà — cảm ơn người bạn nhỏ chu đáo.',
+  ),
+  // Band-specific warmth (category-agnostic).
+  rp('rp_done_45', '4-5', null, 'completed', 'Con của bố mẹ giỏi quá, tự làm được rồi này!'),
+  rp('rp_done_67', '6-7', null, 'completed', 'Con đã tự lo được việc của mình — thật đáng nể!'),
+  rp(
+    'rp_done_810',
+    '8-10',
+    null,
+    'completed',
+    'Con càng lớn càng tự lập, bố mẹ tin tưởng con nhiều lắm.',
+  ),
+  // Tried — effort is the point, never the result.
   rp('rp_try_1', null, null, 'tried', 'Con đã cố gắng, và cố gắng đó rất đáng quý.'),
-  rp('rp_try_2', null, null, 'tried', 'Chưa xong cũng không sao — con đã dám thử, đó mới là điều quan trọng.'),
+  rp(
+    'rp_try_2',
+    null,
+    null,
+    'tried',
+    'Chưa xong cũng không sao — con đã dám thử, đó mới là điều quan trọng.',
+  ),
+  rp('rp_try_4', null, null, 'tried', 'Con đã thử, và mỗi lần thử là một lần con mạnh mẽ hơn.'),
+  rp(
+    'rp_try_5',
+    null,
+    null,
+    'tried',
+    'Chưa xong không sao cả — điều quan trọng là con đã bắt đầu.',
+  ),
   rp('rp_try_3', null, 'eq', 'tried', 'Con đã cố giữ bình tĩnh. Lần sau sẽ dễ hơn một chút nữa.'),
+  rp(
+    'rp_try_6',
+    null,
+    'routine',
+    'tried',
+    'Con đã cố làm việc này. Mai mình thử lại nhẹ nhàng hơn nhé.',
+  ),
+  rp('rp_try_7', null, 'family', 'tried', 'Con đã muốn giúp — tấm lòng đó quý lắm rồi.'),
+  rp('rp_try_45', '4-5', null, 'tried', 'Con đã cố gắng, bố mẹ thương lắm!'),
+  rp('rp_try_810', '8-10', null, 'tried', 'Con đã nỗ lực — kiên trì như vậy rồi sẽ làm được.'),
 ];
 
 function t(

@@ -161,6 +161,31 @@ describe('ParentDashboard — band_review proposal', () => {
   });
 });
 
+function seedNoChecklist(): void {
+  localStorage.setItem(
+    'litabluma.mock.v2',
+    JSON.stringify({
+      consent: { version: '1.0', acceptedAt: '2026-01-01T00:00:00.000Z' },
+      child: CHILD,
+      checklist: [],
+      logs: [],
+    }),
+  );
+}
+
+describe('ParentDashboard — empty checklist', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('shows an empty state with a CTA to manage when there are no active items', () => {
+    seedNoChecklist();
+    renderDashboard();
+
+    expect(screen.getByText(/Chưa có việc nào trong checklist/)).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: /Thêm việc/ });
+    expect(link).toHaveAttribute('href', '/parent/manage');
+  });
+});
+
 describe('ParentDashboard — parent self-regulation micro-pause', () => {
   beforeEach(() => localStorage.clear());
 

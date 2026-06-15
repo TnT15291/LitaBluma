@@ -117,6 +117,9 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    /* App is light-only: keep native controls (date/number/checkbox) from
+       inverting under a dark OS theme. */
+    color-scheme: light;
   }
 
   body {
@@ -159,6 +162,11 @@
 }
 
 @layer components {
+  /* Keep the focus ring on-palette inside the immersive garden world. */
+  .child-scope :focus-visible {
+    outline-color: var(--color-leaf-600);
+  }
+
   /* ── Child world surface ───────────────────────────────────────────── */
   .child-scope {
     font-family: var(--font-rounded);

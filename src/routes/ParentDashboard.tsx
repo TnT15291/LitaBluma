@@ -40,7 +40,6 @@ export function ParentDashboard() {
     removeReward,
     applyProposal,
     dismissProposal,
-    reset,
   } = useStore();
   const { child } = state;
   const [toast, setToast] = useState<string | null>(null);
@@ -59,6 +58,7 @@ export function ParentDashboard() {
   const stage = STAGE_DISPLAY[garden.stage];
 
   const today = new Date().toISOString().slice(0, 10);
+  const activeChecklist = state.checklist.filter((c) => c.status === 'active');
   const loggedToday = new Set(
     state.logs.filter((l) => l.logDate === today).map((l) => l.checklistItemId),
   );
@@ -110,7 +110,9 @@ export function ParentDashboard() {
 
   const handleApplyProposal = (proposal: Proposal) => {
     if (applyProposal(proposal)) {
-      flash(proposal.kind === 'recurring_not_yet' ? 'Đã tạm ẩn việc này' : 'Đã cập nhật theo đề xuất');
+      flash(
+        proposal.kind === 'recurring_not_yet' ? 'Đã tạm ẩn việc này' : 'Đã cập nhật theo đề xuất',
+      );
     }
   };
 
@@ -123,7 +125,10 @@ export function ParentDashboard() {
             aria-label="Quản lý hồ sơ và checklist"
             className="-m-1 flex min-w-0 items-center gap-3 rounded-2xl p-1 transition-colors hover:bg-ink-100"
           >
-            <span className="grid size-11 place-items-center rounded-full bg-calm-100 text-xl" aria-hidden>
+            <span
+              className="grid size-11 place-items-center rounded-full bg-calm-100 text-xl"
+              aria-hidden
+            >
               {avatarEmoji(child.avatarKey)}
             </span>
             <div className="min-w-0">
@@ -179,7 +184,8 @@ export function ParentDashboard() {
               🎂
             </span>
             <p className="text-sm text-calm-700">
-              Hôm nay là sinh nhật {child.displayName}! Một năm con đã lớn thật nhiều — thật đáng tự hào.
+              Hôm nay là sinh nhật {child.displayName}! Một năm con đã lớn thật nhiều — thật đáng tự
+              hào.
             </p>
           </Panel>
         )}
@@ -187,83 +193,97 @@ export function ParentDashboard() {
         <section>
           <h2 className="mb-2 px-1 text-sm font-semibold text-ink-600">Checklist hôm nay</h2>
           <div className="flex flex-col gap-2.5">
-            {state.checklist
-              .filter((c) => c.status === 'active')
-              .map((item) => {
-                const last = lastOutcomeFor(item.id);
-                return (
-                  <Panel key={item.id} className="p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-ink-900">{item.title}</p>
-                        <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-ink-400">
-                          {item.virtue && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-calm-100 px-2 py-0.5 font-medium text-calm-700">
-                              <span aria-hidden>{virtueMeta(item.virtue).emoji}</span>
-                              {virtueMeta(item.virtue).label}
-                            </span>
-                          )}
-                          <span>
-                            {item.pointsValue} điểm · {labelStage(item.habitStage)}
-                            {loggedToday.has(item.id) && ' · đã ghi hôm nay'}
+            {activeChecklist.length === 0 && (
+              <Panel className="flex flex-col items-center gap-3 py-7 text-center">
+                <span className="text-3xl" aria-hidden>
+                  🌱
+                </span>
+                <p className="text-sm text-ink-500">
+                  Chưa có việc nào trong checklist. Thêm một việc nhỏ để bắt đầu đồng hành cùng con.
+                </p>
+                <Link
+                  to="/parent/manage"
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-calm-500 px-5 text-sm font-medium text-white shadow-[var(--shadow-panel)] transition-colors hover:bg-calm-600"
+                >
+                  <span aria-hidden>＋</span> Thêm việc
+                </Link>
+              </Panel>
+            )}
+            {activeChecklist.map((item) => {
+              const last = lastOutcomeFor(item.id);
+              return (
+                <Panel key={item.id} className="p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-ink-900">{item.title}</p>
+                      <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-ink-400">
+                        {item.virtue && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-calm-100 px-2 py-0.5 font-medium text-calm-700">
+                            <span aria-hidden>{virtueMeta(item.virtue).emoji}</span>
+                            {virtueMeta(item.virtue).label}
                           </span>
-                        </p>
-                      </div>
-                    </div>
-                    <div
-                      role="group"
-                      aria-label={`Ghi nhận: ${item.title}`}
-                      className="mt-3 grid grid-cols-3 gap-2"
-                    >
-                      {OUTCOMES.map((o) => {
-                        const selected = last === o.value;
-                        return (
-                          <button
-                            key={o.value}
-                            onClick={() => handleLog(item.id, o.value)}
-                            disabled={busyItem === item.id}
-                            aria-pressed={selected}
-                            className={
-                              'inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-medium transition-colors ' +
-                              (selected
-                                ? o.active + ' shadow-[var(--shadow-panel)]'
-                                : 'bg-ink-100 text-ink-600 hover:bg-ink-200')
-                            }
-                          >
-                            <span aria-hidden>{o.emoji}</span>
-                            {o.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {pause?.itemId === item.id && (
-                      <div
-                        role="status"
-                        className="mt-3 flex items-start gap-3 rounded-2xl bg-calm-100 px-4 py-3"
-                        style={{ animation: 'rise-in 0.3s var(--ease-out-quart) both' }}
-                      >
-                        <span className="mt-0.5 text-lg" aria-hidden>
-                          🌬️
+                        )}
+                        <span>
+                          {item.pointsValue} điểm · {labelStage(item.habitStage)}
+                          {loggedToday.has(item.id) && ' · đã ghi hôm nay'}
                         </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-calm-600">
-                            Một nhịp cho bố mẹ
-                          </p>
-                          <p className="mt-1 text-sm leading-relaxed text-ink-700">{pause.text}</p>
-                        </div>
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    role="group"
+                    aria-label={`Ghi nhận: ${item.title}`}
+                    className="mt-3 grid grid-cols-3 gap-2"
+                  >
+                    {OUTCOMES.map((o) => {
+                      const selected = last === o.value;
+                      return (
                         <button
-                          onClick={() => setPause(null)}
-                          aria-label="Đóng lời nhắc"
-                          className="grid size-7 shrink-0 place-items-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700"
+                          key={o.value}
+                          onClick={() => handleLog(item.id, o.value)}
+                          disabled={busyItem === item.id}
+                          aria-pressed={selected}
+                          className={
+                            'inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-medium transition-colors ' +
+                            (selected
+                              ? o.active + ' shadow-[var(--shadow-panel)]'
+                              : 'bg-ink-100 text-ink-600 hover:bg-ink-200')
+                          }
                         >
-                          <span aria-hidden>✕</span>
+                          <span aria-hidden>{o.emoji}</span>
+                          {o.label}
                         </button>
+                      );
+                    })}
+                  </div>
+
+                  {pause?.itemId === item.id && (
+                    <div
+                      role="status"
+                      className="mt-3 flex items-start gap-3 rounded-2xl bg-calm-100 px-4 py-3"
+                      style={{ animation: 'rise-in 0.3s var(--ease-out-quart) both' }}
+                    >
+                      <span className="mt-0.5 text-lg" aria-hidden>
+                        🌬️
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-calm-600">
+                          Một nhịp cho bố mẹ
+                        </p>
+                        <p className="mt-1 text-sm leading-relaxed text-ink-700">{pause.text}</p>
                       </div>
-                    )}
-                  </Panel>
-                );
-              })}
+                      <button
+                        onClick={() => setPause(null)}
+                        aria-label="Đóng lời nhắc"
+                        className="grid size-7 shrink-0 place-items-center rounded-full text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700"
+                      >
+                        <span aria-hidden>✕</span>
+                      </button>
+                    </div>
+                  )}
+                </Panel>
+              );
+            })}
           </div>
         </section>
 
@@ -381,7 +401,9 @@ export function ParentDashboard() {
                       aria-pressed={rwType === tp}
                       className={cn(
                         'min-h-9 rounded-full px-3 text-sm font-medium transition-colors',
-                        rwType === tp ? 'bg-calm-500 text-white' : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
+                        rwType === tp
+                          ? 'bg-calm-500 text-white'
+                          : 'bg-ink-100 text-ink-600 hover:bg-ink-200',
                       )}
                     >
                       {labelReward(tp)}
@@ -447,18 +469,19 @@ export function ParentDashboard() {
           </section>
         )}
 
-        <button
-          onClick={() => {
-            if (confirm('Đặt lại toàn bộ dữ liệu và quay về màn thiết lập?')) reset();
-          }}
+        <Link
+          to="/parent/privacy"
           className="self-center text-xs text-ink-400 underline underline-offset-2 hover:text-ink-600"
         >
-          Đặt lại dữ liệu
-        </button>
+          Quyền riêng tư &amp; dữ liệu
+        </Link>
       </div>
 
       {toast && (
-        <div className="fixed inset-x-0 bottom-5 flex justify-center px-5" style={{ zIndex: 'var(--z-toast)' }}>
+        <div
+          className="fixed inset-x-0 bottom-5 flex justify-center px-5"
+          style={{ zIndex: 'var(--z-toast)' }}
+        >
           <div
             role="status"
             className="max-w-md rounded-2xl bg-ink-900 px-5 py-3 text-center text-sm font-medium text-white shadow-[var(--shadow-pop)]"
